@@ -1,6 +1,6 @@
 import { TypeOrmModuleOptions } from '@nestjs/typeorm';
 import { ConfigService } from '@nestjs/config';
-import { Movie, Actor, Rating } from '../entities';
+import { Movie, Actor, Rating, User } from '../entities';
 
 export const getDatabaseConfig = (
   configService: ConfigService,
@@ -11,7 +11,7 @@ export const getDatabaseConfig = (
   username: configService.get<string>('DB_USERNAME', 'postgres'),
   password: configService.get<string>('DB_PASSWORD', 'password'),
   database: configService.get<string>('DB_NAME', 'movie_management'),
-  entities: [Movie, Actor, Rating],
+  entities: [Movie, Actor, Rating, User],
   synchronize: configService.get<boolean>('DB_SYNC', true),
   logging: configService.get<boolean>('DB_LOGGING', false),
 });

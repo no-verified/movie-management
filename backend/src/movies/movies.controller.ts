@@ -13,7 +13,7 @@ import {
 } from '@nestjs/common';
 import { MoviesService } from './movies.service';
 import { CreateMovieDto, UpdateMovieDto } from './dto';
-import { ApiKeyGuard } from '../auth/guards';
+import { JwtAuthGuard } from '../auth/guards';
 
 @Controller('movies')
 export class MoviesController {
@@ -21,7 +21,7 @@ export class MoviesController {
 
   @Post()
   @HttpCode(201)
-  @UseGuards(ApiKeyGuard)
+  @UseGuards(JwtAuthGuard)
   create(@Body() createMovieDto: CreateMovieDto) {
     return this.moviesService.create(createMovieDto);
   }
@@ -62,7 +62,7 @@ export class MoviesController {
 
   @Patch(':id')
   @HttpCode(200)
-  @UseGuards(ApiKeyGuard)
+  @UseGuards(JwtAuthGuard)
   update(
     @Param('id', ParseIntPipe) id: number,
     @Body() updateMovieDto: UpdateMovieDto,
@@ -72,7 +72,7 @@ export class MoviesController {
 
   @Delete(':id')
   @HttpCode(204)
-  @UseGuards(ApiKeyGuard)
+  @UseGuards(JwtAuthGuard)
   async remove(@Param('id', ParseIntPipe) id: number): Promise<void> {
     await this.moviesService.remove(id);
   }

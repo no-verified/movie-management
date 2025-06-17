@@ -14,7 +14,7 @@ import {
 import { Response } from 'express';
 import { RatingsService } from './ratings.service';
 import { CreateRatingDto, UpdateRatingDto } from './dto';
-import { ApiKeyGuard } from '../auth/guards';
+import { JwtAuthGuard } from '../auth/guards';
 
 @Controller('ratings')
 export class RatingsController {
@@ -22,7 +22,7 @@ export class RatingsController {
 
   @Post()
   @HttpCode(201)
-  @UseGuards(ApiKeyGuard)
+  @UseGuards(JwtAuthGuard)
   create(@Body() createRatingDto: CreateRatingDto) {
     return this.ratingsService.create(createRatingDto);
   }
@@ -56,7 +56,7 @@ export class RatingsController {
 
   @Patch(':id')
   @HttpCode(200)
-  @UseGuards(ApiKeyGuard)
+  @UseGuards(JwtAuthGuard)
   update(
     @Param('id', ParseIntPipe) id: number,
     @Body() updateRatingDto: UpdateRatingDto,
@@ -66,7 +66,7 @@ export class RatingsController {
 
   @Delete(':id')
   @HttpCode(204)
-  @UseGuards(ApiKeyGuard)
+  @UseGuards(JwtAuthGuard)
   async remove(@Param('id', ParseIntPipe) id: number): Promise<void> {
     await this.ratingsService.remove(id);
   }

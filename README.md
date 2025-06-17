@@ -4,12 +4,14 @@ A full-stack movie management application with NestJS backend, Next.js frontend,
 
 ## ✨ Features
 
+- **JWT Authentication**: Secure user registration and login system
 - **Movie Management**: Browse, search, and view detailed information about movies
 - **Actor Management**: Explore actors and their filmographies
 - **Advanced Search**: Search across movies, actors, and genres
 - **Infinite Scroll**: Pagination with TanStack Query infinite scroll
 - **Database Integration**: PostgreSQL with TypeORM
 - **Responsive Design**: Modern Neobrutalism UI with Tailwind CSS
+- **Protected Routes**: Authentication required to access the application
 
 ## 🚀 Quick Start
 
@@ -58,31 +60,68 @@ make tools           # Start all tools (Adminer + Portainer)
 - **Adminer** (DB UI): http://localhost:8080 (`make adminer`)
 - **Portainer** (Docker UI): http://localhost:9000 (`make portainer`)
 
-## 📚 API Authentication
+## 🔐 Authentication
 
-All API endpoints require the `X-API-Key` header:
+The application uses JWT (JSON Web Tokens) for authentication. Users must register and login to access the application.
+
+### User Registration & Login
+
+1. **Access the application**: Navigate to http://localhost:3000
+2. **Register**: Click "Sign up" to create a new account with email and password
+3. **Login**: Use your credentials to sign in
+
+### API Authentication
+
+All API endpoints require JWT authentication via the `Authorization` header:
 
 ```bash
-curl -H "X-API-Key: your_super_secret_api_key_here" http://localhost:3001/movies
+# Register a new user
+curl -X POST http://localhost:3001/auth/register \
+  -H "Content-Type: application/json" \
+  -d '{
+    "email": "user@example.com",
+    "password": "password123",
+    "firstName": "John",
+    "lastName": "Doe"
+  }'
+
+# Login
+curl -X POST http://localhost:3001/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{
+    "email": "user@example.com",
+    "password": "password123"
+  }'
+
+# Use the returned JWT token for protected endpoints
+curl -H "Authorization: Bearer <your_jwt_token>" http://localhost:3001/movies
 ```
 
-(the secret key is literally `super_secret_api_key`)
+### Available Auth Endpoints
+
+- `POST /auth/register` - Register a new user
+- `POST /auth/login` - Login and get JWT token
+
+All other endpoints require authentication with a valid JWT token.
 
 ## 🏗️ Architecture
 
-- **Backend**: NestJS + TypeScript + TypeORM + PostgreSQL
-- **Frontend**: Next.js + TypeScript + TailwindCSS + Neobrutalism UI
-- **Database**: PostgreSQL with movie/actor relationships
+- **Backend**: NestJS + TypeScript + TypeORM + PostgreSQL + JWT Authentication
+- **Frontend**: Next.js + TypeScript + TailwindCSS + Neobrutalism UI + Protected Routes
+- **Database**: PostgreSQL with movie/actor/user relationships
+- **Authentication**: JWT with Passport.js and bcrypt password hashing
 - **Container**: Docker with hot reload for development
 
-## 🎨 Features
+## 🎨 Technical Features
 
-- CRUD operations for Movies, Actors, and Ratings
-- Search functionality across all entities
-- TMDB API integration for real movie data
-- Responsive Neobrutalism design system
-- TypeScript throughout the stack
-- Docker containerization
+- **JWT Authentication**: Secure user registration and login with Passport.js
+- **Protected API Endpoints**: All CRUD operations require authentication
+- **CRUD Operations**: For Movies, Actors, Ratings, and Users
+- **Search Functionality**: Across all entities with authentication
+- **TMDB API Integration**: Real movie data seeding
+- **Responsive Neobrutalism Design**: Modern, bold UI components
+- **TypeScript**: End-to-end type safety
+- **Docker Containerization**: Easy development setup
 
 ## 🔧 Development
 

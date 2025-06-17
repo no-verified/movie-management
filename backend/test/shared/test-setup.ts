@@ -11,8 +11,13 @@ import { MoviesController } from '../../src/movies/movies.controller';
 import { ActorsController } from '../../src/actors/actors.controller';
 import { RatingsController } from '../../src/ratings/ratings.controller';
 import { GlobalExceptionFilter } from '../../src/common/filters/global-exception.filter';
-import { Movie, Actor, Rating } from '../../src/entities';
+import { Movie, Actor, Rating, User } from '../../src/entities';
 import { ApiKeyGuard } from '../../src/auth/guards/api-key.guard';
+import { JwtAuthGuard } from '../../src/auth/guards/jwt-auth.guard';
+import { AuthService } from '../../src/auth/auth.service';
+import { JwtModule } from '@nestjs/jwt';
+import { PassportModule } from '@nestjs/passport';
+import { JwtStrategy } from '../../src/auth/strategies/jwt.strategy';
 
 export const API_KEY = 'your_super_secret_api_key_here';
 
@@ -26,15 +31,28 @@ export async function createTestApp(): Promise<INestApplication> {
       TypeOrmModule.forRoot({
         type: 'sqlite',
         database: ':memory:',
-        entities: [Movie, Actor, Rating],
+        entities: [Movie, Actor, Rating, User],
         synchronize: true,
         dropSchema: false,
         logging: false,
       }),
-      TypeOrmModule.forFeature([Movie, Actor, Rating]),
+      TypeOrmModule.forFeature([Movie, Actor, Rating, User]),
+      PassportModule,
+      JwtModule.register({
+        secret: 'test-secret',
+        signOptions: { expiresIn: '1d' },
+      }),
     ],
     controllers: [MoviesController, ActorsController, RatingsController],
-    providers: [MoviesService, ActorsService, RatingsService, ApiKeyGuard],
+    providers: [
+      MoviesService,
+      ActorsService,
+      RatingsService,
+      ApiKeyGuard,
+      JwtAuthGuard,
+      AuthService,
+      JwtStrategy,
+    ],
   }).compile();
 
   const app = moduleFixture.createNestApplication();
@@ -59,12 +77,14 @@ export async function clearDatabase(app: INestApplication): Promise<void> {
   const ratingRepo = dataSource.getRepository(Rating);
   const movieRepo = dataSource.getRepository(Movie);
   const actorRepo = dataSource.getRepository(Actor);
+  const userRepo = dataSource.getRepository(User);
 
   try {
     // Clear in proper order to respect foreign key constraints
     await ratingRepo.clear();
     await movieRepo.createQueryBuilder().delete().execute();
     await actorRepo.clear();
+    await userRepo.clear();
 
     // Also clear the junction table
     try {
@@ -76,7 +96,7 @@ export async function clearDatabase(app: INestApplication): Promise<void> {
     // Reset auto-increment counters
     try {
       await dataSource.query(
-        'DELETE FROM sqlite_sequence WHERE name IN ("rating", "movie", "actor")',
+        'DELETE FROM sqlite_sequence WHERE name IN ("rating", "movie", "actor", "users")',
       );
     } catch {
       // sqlite_sequence might not exist, that's OK
@@ -116,4 +136,28 @@ export function getHttpServer(
   app: INestApplication,
 ): Parameters<typeof import('supertest')>[0] {
   return app.getHttpServer() as Parameters<typeof import('supertest')>[0];
+}
+
+export async function createTestUser(
+  app: INestApplication,
+): Promise<{ user: User; token: string }> {
+  const authService = app.get(AuthService);
+  const userRepo = app.get(DataSource).getRepository(User);
+
+  const testUser = {
+    email: 'test@example.com',
+    password: 'password123',
+    firstName: 'Test',
+    lastName: 'User',
+  };
+
+  const result = await authService.register(testUser);
+  const createdUser = await userRepo.findOne({
+    where: { email: testUser.email },
+  });
+
+  return {
+    user: createdUser!,
+    token: result.access_token,
+  };
 }

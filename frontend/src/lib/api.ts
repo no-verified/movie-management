@@ -1,3 +1,5 @@
+import { authService } from "./auth";
+
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001";
 
 interface Movie {
@@ -46,13 +48,31 @@ class ApiService {
   ): Promise<T> {
     const url = `${API_BASE_URL}${endpoint}`;
 
+    // Ajouter automatiquement le token JWT pour toutes les requêtes protégées
+    const authHeader = authService.getAuthHeader();
+    const headers: Record<string, string> = {
+      "Content-Type": "application/json",
+      ...options.headers,
+    };
+
+    if (authHeader) {
+      headers.Authorization = authHeader;
+    }
+
     const response = await fetch(url, {
-      headers: {
-        "Content-Type": "application/json",
-        ...options.headers,
-      },
+      headers,
       ...options,
     });
+
+    // Gérer les erreurs d'authentification
+    if (response.status === 401) {
+      // Token expiré ou invalide, rediriger vers la page de connexion
+      authService.logout();
+      if (typeof window !== "undefined") {
+        window.location.href = "/auth/login";
+      }
+      throw new Error("Authentication required");
+    }
 
     if (!response.ok) {
       throw new Error(`API Error: ${response.status} ${response.statusText}`);

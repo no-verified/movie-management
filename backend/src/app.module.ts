@@ -8,6 +8,7 @@ import { MoviesModule } from './movies/movies.module';
 import { ActorsModule } from './actors/actors.module';
 import { RatingsModule } from './ratings/ratings.module';
 import { SeedingModule } from './seeding/seeding.module';
+import { AuthModule } from './auth/auth.module';
 
 @Module({
   imports: [
@@ -24,6 +25,7 @@ import { SeedingModule } from './seeding/seeding.module';
     ActorsModule,
     RatingsModule,
     SeedingModule,
+    AuthModule,
   ],
   controllers: [AppController],
   providers: [AppService],

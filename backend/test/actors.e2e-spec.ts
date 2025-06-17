@@ -3,15 +3,16 @@ import * as request from 'supertest';
 import {
   createTestApp,
   clearDatabase,
-  API_KEY,
   expectErrorResponse,
   getHttpServer,
+  createTestUser,
 } from './shared/test-setup';
 import { Actor } from 'src/entities/actor.entity';
 import { Movie } from 'src/entities/movie.entity';
 
 describe('Actors API (e2e)', () => {
   let app: INestApplication;
+  let authToken: string;
 
   beforeAll(async () => {
     app = await createTestApp();
@@ -23,6 +24,8 @@ describe('Actors API (e2e)', () => {
 
   beforeEach(async () => {
     await clearDatabase(app);
+    const { token } = await createTestUser(app);
+    authToken = token;
   });
 
   describe('POST /actors', () => {
@@ -38,7 +41,7 @@ describe('Actors API (e2e)', () => {
 
       const response = await request(getHttpServer(app))
         .post('/actors')
-        .set('x-api-key', API_KEY)
+        .set('Authorization', `Bearer ${authToken}`)
         .send(createActorDto)
         .expect(201);
 
@@ -61,7 +64,7 @@ describe('Actors API (e2e)', () => {
 
       const response = await request(getHttpServer(app))
         .post('/actors')
-        .set('x-api-key', API_KEY)
+        .set('Authorization', `Bearer ${authToken}`)
         .send(createActorDto)
         .expect(201);
 
@@ -82,7 +85,7 @@ describe('Actors API (e2e)', () => {
         .send(createActorDto)
         .expect(401);
 
-      expectErrorResponse(response.body, 401, 'Invalid API key');
+      expectErrorResponse(response.body, 401, 'Unauthorized');
     });
 
     it('should validate required fields', async () => {
@@ -93,7 +96,7 @@ describe('Actors API (e2e)', () => {
 
       const response = await request(getHttpServer(app))
         .post('/actors')
-        .set('x-api-key', API_KEY)
+        .set('Authorization', `Bearer ${authToken}`)
         .send(invalidActorDto)
         .expect(400);
 
@@ -123,7 +126,7 @@ describe('Actors API (e2e)', () => {
 
       const response = await request(getHttpServer(app))
         .post('/actors')
-        .set('x-api-key', API_KEY)
+        .set('Authorization', `Bearer ${authToken}`)
         .send(invalidActorDto)
         .expect(400);
 
@@ -144,7 +147,7 @@ describe('Actors API (e2e)', () => {
 
       const response = await request(getHttpServer(app))
         .post('/actors')
-        .set('x-api-key', API_KEY)
+        .set('Authorization', `Bearer ${authToken}`)
         .send(invalidActorDto)
         .expect(400);
 
@@ -173,7 +176,7 @@ describe('Actors API (e2e)', () => {
 
       const response = await request(getHttpServer(app))
         .post('/actors')
-        .set('x-api-key', API_KEY)
+        .set('Authorization', `Bearer ${authToken}`)
         .send(invalidActorDto)
         .expect(400);
 
@@ -190,7 +193,7 @@ describe('Actors API (e2e)', () => {
 
       const response = await request(getHttpServer(app))
         .post('/actors')
-        .set('x-api-key', API_KEY)
+        .set('Authorization', `Bearer ${authToken}`)
         .send(invalidActorDto)
         .expect(400);
 
@@ -207,7 +210,7 @@ describe('Actors API (e2e)', () => {
       // Create test data
       await request(getHttpServer(app))
         .post('/actors')
-        .set('x-api-key', API_KEY)
+        .set('Authorization', `Bearer ${authToken}`)
         .send({
           firstName: 'John',
           lastName: 'Doe',
@@ -217,7 +220,7 @@ describe('Actors API (e2e)', () => {
 
       await request(getHttpServer(app))
         .post('/actors')
-        .set('x-api-key', API_KEY)
+        .set('Authorization', `Bearer ${authToken}`)
         .send({
           firstName: 'Jane',
           lastName: 'Smith',
@@ -295,7 +298,7 @@ describe('Actors API (e2e)', () => {
     beforeEach(async () => {
       const response = await request(getHttpServer(app))
         .post('/actors')
-        .set('x-api-key', API_KEY)
+        .set('Authorization', `Bearer ${authToken}`)
         .send({
           firstName: 'Test',
           lastName: 'Actor',
@@ -340,7 +343,7 @@ describe('Actors API (e2e)', () => {
       // Create actor
       const actorResponse = await request(getHttpServer(app))
         .post('/actors')
-        .set('x-api-key', API_KEY)
+        .set('Authorization', `Bearer ${authToken}`)
         .send({
           firstName: 'Test',
           lastName: 'Actor',
@@ -352,7 +355,7 @@ describe('Actors API (e2e)', () => {
       // Create movie with actor
       const movieResponse = await request(getHttpServer(app))
         .post('/movies')
-        .set('Authorization', `Bearer ${API_KEY}`)
+        .set('Authorization', `Bearer ${authToken}`)
         .send({
           title: 'Movie with Actor',
           releaseYear: 2023,
@@ -380,7 +383,7 @@ describe('Actors API (e2e)', () => {
       // Create another actor without movies
       const actorResponse = await request(getHttpServer(app))
         .post('/actors')
-        .set('x-api-key', API_KEY)
+        .set('Authorization', `Bearer ${authToken}`)
         .send({
           firstName: 'No',
           lastName: 'Movies',
@@ -406,7 +409,7 @@ describe('Actors API (e2e)', () => {
     beforeEach(async () => {
       const response = await request(getHttpServer(app))
         .post('/actors')
-        .set('x-api-key', API_KEY)
+        .set('Authorization', `Bearer ${authToken}`)
         .send({
           firstName: 'Original',
           lastName: 'Name',
@@ -425,7 +428,7 @@ describe('Actors API (e2e)', () => {
 
       const response = await request(getHttpServer(app))
         .patch(`/actors/${actorId}`)
-        .set('x-api-key', API_KEY)
+        .set('Authorization', `Bearer ${authToken}`)
         .send(updateData)
         .expect(200);
 
@@ -443,13 +446,13 @@ describe('Actors API (e2e)', () => {
         .send({ firstName: 'Updated' })
         .expect(401);
 
-      expectErrorResponse(response.body, 401, 'Invalid API key');
+      expectErrorResponse(response.body, 401, 'Unauthorized');
     });
 
     it('should return 404 for non-existent actor', async () => {
       const response = await request(getHttpServer(app))
         .patch('/actors/99999')
-        .set('x-api-key', API_KEY)
+        .set('Authorization', `Bearer ${authToken}`)
         .send({ firstName: 'Updated' })
         .expect(404);
 
@@ -464,7 +467,7 @@ describe('Actors API (e2e)', () => {
 
       const response = await request(getHttpServer(app))
         .patch(`/actors/${actorId}`)
-        .set('x-api-key', API_KEY)
+        .set('Authorization', `Bearer ${authToken}`)
         .send(invalidUpdateData)
         .expect(400);
 
@@ -485,7 +488,7 @@ describe('Actors API (e2e)', () => {
     beforeEach(async () => {
       const response = await request(getHttpServer(app))
         .post('/actors')
-        .set('x-api-key', API_KEY)
+        .set('Authorization', `Bearer ${authToken}`)
         .send({
           firstName: 'To',
           lastName: 'Delete',
@@ -498,7 +501,7 @@ describe('Actors API (e2e)', () => {
     it('should delete an actor', async () => {
       await request(getHttpServer(app))
         .delete(`/actors/${actorId}`)
-        .set('x-api-key', API_KEY)
+        .set('Authorization', `Bearer ${authToken}`)
         .expect(204);
 
       // Verify actor is deleted
@@ -510,13 +513,13 @@ describe('Actors API (e2e)', () => {
         .delete(`/actors/${actorId}`)
         .expect(401);
 
-      expectErrorResponse(response.body, 401, 'Invalid API key');
+      expectErrorResponse(response.body, 401, 'Unauthorized');
     });
 
     it('should return 404 for non-existent actor', async () => {
       const response = await request(getHttpServer(app))
         .delete('/actors/99999')
-        .set('x-api-key', API_KEY)
+        .set('Authorization', `Bearer ${authToken}`)
         .expect(404);
 
       expectErrorResponse(response.body, 404);
@@ -529,7 +532,7 @@ describe('Actors API (e2e)', () => {
       // Recent actors require all fields to be populated
       const actorResponse = await request(getHttpServer(app))
         .post('/actors')
-        .set('x-api-key', API_KEY)
+        .set('Authorization', `Bearer ${authToken}`)
         .send({
           firstName: 'Recent',
           lastName: 'Actor',
@@ -541,7 +544,7 @@ describe('Actors API (e2e)', () => {
 
       const movieResponse = await request(getHttpServer(app))
         .post('/movies')
-        .set('Authorization', `Bearer ${API_KEY}`)
+        .set('Authorization', `Bearer ${authToken}`)
         .send({
           title: 'Movie with Recent Actor',
           releaseYear: 2024,
@@ -553,7 +556,7 @@ describe('Actors API (e2e)', () => {
 
       await request(getHttpServer(app))
         .post('/ratings')
-        .set('Authorization', `Bearer ${API_KEY}`)
+        .set('Authorization', `Bearer ${authToken}`)
         .send({
           score: 9.0,
           movieId: movieBody.id,

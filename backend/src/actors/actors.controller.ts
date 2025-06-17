@@ -13,7 +13,7 @@ import {
 } from '@nestjs/common';
 import { ActorsService } from './actors.service';
 import { CreateActorDto, UpdateActorDto } from './dto';
-import { ApiKeyGuard } from '../auth/guards';
+import { JwtAuthGuard } from '../auth/guards';
 
 @Controller('actors')
 export class ActorsController {
@@ -21,7 +21,7 @@ export class ActorsController {
 
   @Post()
   @HttpCode(201)
-  @UseGuards(ApiKeyGuard)
+  @UseGuards(JwtAuthGuard)
   create(@Body() createActorDto: CreateActorDto) {
     return this.actorsService.create(createActorDto);
   }
@@ -51,7 +51,7 @@ export class ActorsController {
 
   @Patch(':id')
   @HttpCode(200)
-  @UseGuards(ApiKeyGuard)
+  @UseGuards(JwtAuthGuard)
   update(
     @Param('id', ParseIntPipe) id: number,
     @Body() updateActorDto: UpdateActorDto,
@@ -61,7 +61,7 @@ export class ActorsController {
 
   @Delete(':id')
   @HttpCode(204)
-  @UseGuards(ApiKeyGuard)
+  @UseGuards(JwtAuthGuard)
   async remove(@Param('id', ParseIntPipe) id: number): Promise<void> {
     await this.actorsService.remove(id);
   }

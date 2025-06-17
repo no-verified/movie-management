@@ -3,14 +3,15 @@ import * as request from 'supertest';
 import {
   createTestApp,
   clearDatabase,
-  API_KEY,
   expectErrorResponse,
   getHttpServer,
+  createTestUser,
 } from './shared/test-setup';
 import { Movie, Rating } from 'src/entities';
 
 describe('Ratings API (e2e)', () => {
   let app: INestApplication;
+  let authToken: string;
 
   beforeAll(async () => {
     app = await createTestApp();
@@ -22,6 +23,8 @@ describe('Ratings API (e2e)', () => {
 
   beforeEach(async () => {
     await clearDatabase(app);
+    const { token } = await createTestUser(app);
+    authToken = token;
   });
 
   describe('POST /ratings', () => {
@@ -30,7 +33,7 @@ describe('Ratings API (e2e)', () => {
     beforeEach(async () => {
       const movieResponse = await request(getHttpServer(app))
         .post('/movies')
-        .set('Authorization', `Bearer ${API_KEY}`)
+        .set('Authorization', `Bearer ${authToken}`)
         .send({
           title: 'Movie for Rating',
           releaseYear: 2023,
@@ -50,7 +53,7 @@ describe('Ratings API (e2e)', () => {
 
       const response = await request(getHttpServer(app))
         .post('/ratings')
-        .set('Authorization', `Bearer ${API_KEY}`)
+        .set('Authorization', `Bearer ${authToken}`)
         .send(createRatingDto)
         .expect(201);
 
@@ -72,7 +75,7 @@ describe('Ratings API (e2e)', () => {
 
       const response = await request(getHttpServer(app))
         .post('/ratings')
-        .set('Authorization', `Bearer ${API_KEY}`)
+        .set('Authorization', `Bearer ${authToken}`)
         .send(createRatingDto)
         .expect(201);
 
@@ -103,7 +106,7 @@ describe('Ratings API (e2e)', () => {
         message: string[];
       };
 
-      expectErrorResponse(body, 401, 'Invalid API key');
+      expectErrorResponse(body, 401, 'Unauthorized');
     });
 
     it('should validate required fields', async () => {
@@ -114,7 +117,7 @@ describe('Ratings API (e2e)', () => {
 
       const response = await request(getHttpServer(app))
         .post('/ratings')
-        .set('Authorization', `Bearer ${API_KEY}`)
+        .set('Authorization', `Bearer ${authToken}`)
         .send(invalidRatingDto)
         .expect(400);
 
@@ -142,7 +145,7 @@ describe('Ratings API (e2e)', () => {
 
       const response = await request(getHttpServer(app))
         .post('/ratings')
-        .set('Authorization', `Bearer ${API_KEY}`)
+        .set('Authorization', `Bearer ${authToken}`)
         .send(invalidRatingDto)
         .expect(400);
 
@@ -163,7 +166,7 @@ describe('Ratings API (e2e)', () => {
 
       const response = await request(getHttpServer(app))
         .post('/ratings')
-        .set('Authorization', `Bearer ${API_KEY}`)
+        .set('Authorization', `Bearer ${authToken}`)
         .send(invalidRatingDto)
         .expect(400);
 
@@ -184,7 +187,7 @@ describe('Ratings API (e2e)', () => {
 
       const response = await request(getHttpServer(app))
         .post('/ratings')
-        .set('Authorization', `Bearer ${API_KEY}`)
+        .set('Authorization', `Bearer ${authToken}`)
         .send(invalidRatingDto)
         .expect(400);
 
@@ -201,7 +204,7 @@ describe('Ratings API (e2e)', () => {
       // Test whole number
       const response1 = await request(getHttpServer(app))
         .post('/ratings')
-        .set('Authorization', `Bearer ${API_KEY}`)
+        .set('Authorization', `Bearer ${authToken}`)
         .send({ score: 8, movieId: movieId })
         .expect(201);
 
@@ -211,7 +214,7 @@ describe('Ratings API (e2e)', () => {
       // Test one decimal place
       const response2 = await request(getHttpServer(app))
         .post('/ratings')
-        .set('Authorization', `Bearer ${API_KEY}`)
+        .set('Authorization', `Bearer ${authToken}`)
         .send({ score: 8.5, movieId: movieId })
         .expect(201);
 
@@ -229,7 +232,7 @@ describe('Ratings API (e2e)', () => {
 
       const response = await request(getHttpServer(app))
         .post('/ratings')
-        .set('Authorization', `Bearer ${API_KEY}`)
+        .set('Authorization', `Bearer ${authToken}`)
         .send(invalidRatingDto)
         .expect(400);
 
@@ -257,7 +260,7 @@ describe('Ratings API (e2e)', () => {
 
       const response = await request(getHttpServer(app))
         .post('/ratings')
-        .set('Authorization', `Bearer ${API_KEY}`)
+        .set('Authorization', `Bearer ${authToken}`)
         .send(createRatingDto)
         .expect(400);
 
@@ -279,7 +282,7 @@ describe('Ratings API (e2e)', () => {
 
       const response = await request(getHttpServer(app))
         .post('/ratings')
-        .set('Authorization', `Bearer ${API_KEY}`)
+        .set('Authorization', `Bearer ${authToken}`)
         .send(invalidRatingDto)
         .expect(400);
 
@@ -299,7 +302,7 @@ describe('Ratings API (e2e)', () => {
     beforeEach(async () => {
       const movieResponse = await request(getHttpServer(app))
         .post('/movies')
-        .set('Authorization', `Bearer ${API_KEY}`)
+        .set('Authorization', `Bearer ${authToken}`)
         .send({
           title: 'Movie with Ratings',
           releaseYear: 2023,
@@ -310,7 +313,7 @@ describe('Ratings API (e2e)', () => {
       // Create test ratings
       await request(getHttpServer(app))
         .post('/ratings')
-        .set('Authorization', `Bearer ${API_KEY}`)
+        .set('Authorization', `Bearer ${authToken}`)
         .send({
           score: 8.0,
           review: 'Good movie',
@@ -321,7 +324,7 @@ describe('Ratings API (e2e)', () => {
 
       await request(getHttpServer(app))
         .post('/ratings')
-        .set('Authorization', `Bearer ${API_KEY}`)
+        .set('Authorization', `Bearer ${authToken}`)
         .send({
           score: 9.0,
           review: 'Excellent movie',
@@ -353,7 +356,7 @@ describe('Ratings API (e2e)', () => {
     beforeEach(async () => {
       const movieResponse = await request(getHttpServer(app))
         .post('/movies')
-        .set('Authorization', `Bearer ${API_KEY}`)
+        .set('Authorization', `Bearer ${authToken}`)
         .send({
           title: 'Movie for Single Rating',
           releaseYear: 2023,
@@ -363,7 +366,7 @@ describe('Ratings API (e2e)', () => {
 
       const ratingResponse = await request(getHttpServer(app))
         .post('/ratings')
-        .set('Authorization', `Bearer ${API_KEY}`)
+        .set('Authorization', `Bearer ${authToken}`)
         .send({
           score: 8.5,
           review: 'Great movie',
@@ -410,7 +413,7 @@ describe('Ratings API (e2e)', () => {
     beforeEach(async () => {
       const movieResponse = await request(getHttpServer(app))
         .post('/movies')
-        .set('Authorization', `Bearer ${API_KEY}`)
+        .set('Authorization', `Bearer ${authToken}`)
         .send({
           title: 'Movie with Multiple Ratings',
           releaseYear: 2023,
@@ -421,17 +424,17 @@ describe('Ratings API (e2e)', () => {
       // Create multiple ratings for the movie
       await request(getHttpServer(app))
         .post('/ratings')
-        .set('Authorization', `Bearer ${API_KEY}`)
+        .set('Authorization', `Bearer ${authToken}`)
         .send({ score: 7.0, movieId: movieId });
 
       await request(getHttpServer(app))
         .post('/ratings')
-        .set('Authorization', `Bearer ${API_KEY}`)
+        .set('Authorization', `Bearer ${authToken}`)
         .send({ score: 8.0, movieId: movieId });
 
       await request(getHttpServer(app))
         .post('/ratings')
-        .set('Authorization', `Bearer ${API_KEY}`)
+        .set('Authorization', `Bearer ${authToken}`)
         .send({ score: 9.0, movieId: movieId });
     });
 
@@ -453,7 +456,7 @@ describe('Ratings API (e2e)', () => {
       // Create another movie without ratings
       const movieResponse = await request(getHttpServer(app))
         .post('/movies')
-        .set('Authorization', `Bearer ${API_KEY}`)
+        .set('Authorization', `Bearer ${authToken}`)
         .send({
           title: 'Movie without Ratings',
           releaseYear: 2023,
@@ -476,7 +479,7 @@ describe('Ratings API (e2e)', () => {
     beforeEach(async () => {
       const movieResponse = await request(getHttpServer(app))
         .post('/movies')
-        .set('Authorization', `Bearer ${API_KEY}`)
+        .set('Authorization', `Bearer ${authToken}`)
         .send({
           title: 'Movie for Average Rating',
           releaseYear: 2023,
@@ -489,12 +492,12 @@ describe('Ratings API (e2e)', () => {
       // Create ratings: 8.0, 9.0 -> average = 8.5
       await request(getHttpServer(app))
         .post('/ratings')
-        .set('Authorization', `Bearer ${API_KEY}`)
+        .set('Authorization', `Bearer ${authToken}`)
         .send({ score: 8.0, movieId: movieId });
 
       await request(getHttpServer(app))
         .post('/ratings')
-        .set('Authorization', `Bearer ${API_KEY}`)
+        .set('Authorization', `Bearer ${authToken}`)
         .send({ score: 9.0, movieId: movieId });
 
       const response = await request(getHttpServer(app))
@@ -526,7 +529,7 @@ describe('Ratings API (e2e)', () => {
     it('should handle single rating', async () => {
       await request(getHttpServer(app))
         .post('/ratings')
-        .set('Authorization', `Bearer ${API_KEY}`)
+        .set('Authorization', `Bearer ${authToken}`)
         .send({ score: 7.5, movieId: movieId });
 
       const response = await request(getHttpServer(app))
@@ -550,7 +553,7 @@ describe('Ratings API (e2e)', () => {
     beforeEach(async () => {
       const movieResponse = await request(getHttpServer(app))
         .post('/movies')
-        .set('Authorization', `Bearer ${API_KEY}`)
+        .set('Authorization', `Bearer ${authToken}`)
         .send({
           title: 'Movie for Rating Update',
           releaseYear: 2023,
@@ -560,7 +563,7 @@ describe('Ratings API (e2e)', () => {
 
       const ratingResponse = await request(getHttpServer(app))
         .post('/ratings')
-        .set('Authorization', `Bearer ${API_KEY}`)
+        .set('Authorization', `Bearer ${authToken}`)
         .send({
           score: 7.0,
           review: 'Original review',
@@ -578,7 +581,7 @@ describe('Ratings API (e2e)', () => {
 
       const response = await request(getHttpServer(app))
         .patch(`/ratings/${ratingId}`)
-        .set('Authorization', `Bearer ${API_KEY}`)
+        .set('Authorization', `Bearer ${authToken}`)
         .send(updateData)
         .expect(200);
 
@@ -602,13 +605,13 @@ describe('Ratings API (e2e)', () => {
         message: string[];
       };
 
-      expectErrorResponse(body, 401, 'Invalid API key');
+      expectErrorResponse(body, 401, 'Unauthorized');
     });
 
     it('should return 404 for non-existent rating', async () => {
       const response = await request(getHttpServer(app))
         .patch('/ratings/99999')
-        .set('Authorization', `Bearer ${API_KEY}`)
+        .set('Authorization', `Bearer ${authToken}`)
         .send({ score: 9.0 })
         .expect(404);
 
@@ -628,7 +631,7 @@ describe('Ratings API (e2e)', () => {
 
       const response = await request(getHttpServer(app))
         .patch(`/ratings/${ratingId}`)
-        .set('Authorization', `Bearer ${API_KEY}`)
+        .set('Authorization', `Bearer ${authToken}`)
         .send(invalidUpdateData)
         .expect(400);
 
@@ -645,7 +648,7 @@ describe('Ratings API (e2e)', () => {
       // Create another movie
       const anotherMovieResponse = await request(getHttpServer(app))
         .post('/movies')
-        .set('Authorization', `Bearer ${API_KEY}`)
+        .set('Authorization', `Bearer ${authToken}`)
         .send({
           title: 'Another Movie',
           releaseYear: 2024,
@@ -658,7 +661,7 @@ describe('Ratings API (e2e)', () => {
 
       const response = await request(getHttpServer(app))
         .patch(`/ratings/${ratingId}`)
-        .set('Authorization', `Bearer ${API_KEY}`)
+        .set('Authorization', `Bearer ${authToken}`)
         .send(updateData)
         .expect(400);
 
@@ -679,7 +682,7 @@ describe('Ratings API (e2e)', () => {
     beforeEach(async () => {
       const movieResponse = await request(getHttpServer(app))
         .post('/movies')
-        .set('Authorization', `Bearer ${API_KEY}`)
+        .set('Authorization', `Bearer ${authToken}`)
         .send({
           title: 'Movie for Rating Deletion',
           releaseYear: 2023,
@@ -689,7 +692,7 @@ describe('Ratings API (e2e)', () => {
 
       const ratingResponse = await request(getHttpServer(app))
         .post('/ratings')
-        .set('Authorization', `Bearer ${API_KEY}`)
+        .set('Authorization', `Bearer ${authToken}`)
         .send({
           score: 8.0,
           movieId: movieId,
@@ -700,7 +703,7 @@ describe('Ratings API (e2e)', () => {
     it('should delete a rating', async () => {
       await request(getHttpServer(app))
         .delete(`/ratings/${ratingId}`)
-        .set('Authorization', `Bearer ${API_KEY}`)
+        .set('Authorization', `Bearer ${authToken}`)
         .expect(204);
 
       // Verify rating is deleted
@@ -718,13 +721,13 @@ describe('Ratings API (e2e)', () => {
         message: string[];
       };
 
-      expectErrorResponse(body, 401, 'Invalid API key');
+      expectErrorResponse(body, 401, 'Unauthorized');
     });
 
     it('should return 404 for non-existent rating', async () => {
       const response = await request(getHttpServer(app))
         .delete('/ratings/99999')
-        .set('Authorization', `Bearer ${API_KEY}`)
+        .set('Authorization', `Bearer ${authToken}`)
         .expect(404);
 
       const body = response.body as {
