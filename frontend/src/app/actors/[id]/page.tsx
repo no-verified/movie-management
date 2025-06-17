@@ -5,6 +5,7 @@ import {Button} from "@/components/ui/button";
 import {Card, CardContent, CardHeader, CardTitle} from "@/components/ui/card";
 import {MovieCard} from "@/components/movie-card";
 import {useActor, useActorMovies} from "@/api/actors/queries";
+import Image from "next/image";
 
 export default function ActorDetailPage() {
   const router = useRouter();
@@ -93,9 +94,11 @@ export default function ActorDetailPage() {
             <div className="lg:col-span-1">
               {actor.photoUrl && (
                 <div className="aspect-[3/4] w-full max-w-md mx-auto">
-                  <img
+                  <Image
                     src={actor.photoUrl}
                     alt={fullName}
+                    width={320}
+                    height={427}
                     className="w-full h-full object-cover border-3 border-border shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]"
                   />
                 </div>
@@ -235,9 +238,11 @@ export default function ActorDetailPage() {
                   </p>
                 </div>
                 <div>
-                  <img
+                  <Image
                     src={actor.photoUrl}
                     alt={fullName}
+                    width={320}
+                    height={427}
                     className="w-full h-auto rounded-base border-2 border-border shadow-shadow"
                   />
                 </div>

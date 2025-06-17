@@ -46,23 +46,31 @@ export class TMDBService {
 
   private async makeRequest<T>(endpoint: string): Promise<T> {
     const url = `${this.baseUrl}${endpoint}`;
-    
+
     try {
       const response = await fetch(url, {
         headers: {
-          'Authorization': `Bearer eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiI2ZTUwNzNiMjEzMThkMDU3OWViZTg2OWVjNDBjZjRmNyIsIm5iZiI6MTc1MDE2NjgzNy4xODU5OTk5LCJzdWIiOiI2ODUxNmQzNTA3NjAzYjBjMTQ1ZWE0MDciLCJzY29wZXMiOlsiYXBpX3JlYWQiXSwidmVyc2lvbiI6MX0.V8eBjuKs5QrsYaWR17Q_5WYbQOaqqQInaqvv-ZWtiWk`,
-          'accept': 'application/json'
-        }
+          Authorization: `Bearer eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiI2ZTUwNzNiMjEzMThkMDU3OWViZTg2OWVjNDBjZjRmNyIsIm5iZiI6MTc1MDE2NjgzNy4xODU5OTk5LCJzdWIiOiI2ODUxNmQzNTA3NjAzYjBjMTQ1ZWE0MDciLCJzY29wZXMiOlsiYXBpX3JlYWQiXSwidmVyc2lvbiI6MX0.V8eBjuKs5QrsYaWR17Q_5WYbQOaqqQInaqvv-ZWtiWk`,
+          accept: 'application/json',
+        },
       });
-      
+
       if (!response.ok) {
-        this.logger.error(`TMDB API response: ${response.status} ${response.statusText}`);
-        throw new Error(`TMDB API error: ${response.status} ${response.statusText}`);
+        this.logger.error(
+          `TMDB API response: ${response.status} ${response.statusText}`,
+        );
+        throw new Error(
+          `TMDB API error: ${response.status} ${response.statusText}`,
+        );
       }
-      
-      return await response.json();
-    } catch (error) {
-      this.logger.error(`Failed to fetch from TMDB: ${error.message}`);
+
+      return (await response.json()) as T;
+    } catch (error: unknown) {
+      this.logger.error(
+        `Failed to fetch from TMDB: ${
+          error instanceof Error ? error.message : 'Unknown error'
+        }`,
+      );
       throw error;
     }
   }
@@ -75,7 +83,9 @@ export class TMDBService {
     return this.makeRequest(`/movie/top_rated?page=${page}`);
   }
 
-  async getMovieDetails(movieId: number): Promise<TMDBMovie & { runtime: number }> {
+  async getMovieDetails(
+    movieId: number,
+  ): Promise<TMDBMovie & { runtime: number }> {
     return this.makeRequest(`/movie/${movieId}`);
   }
 

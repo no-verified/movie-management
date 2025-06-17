@@ -103,9 +103,11 @@ export class SeedingService {
 
         // Small delay between movies
         await this.delay(200);
-      } catch (error) {
+      } catch (error: unknown) {
         this.logger.warn(
-          `Failed to process movie "${tmdbMovie.title}": ${error.message}`,
+          `Failed to process movie "${tmdbMovie.title}": ${
+            error instanceof Error ? error.message : 'Unknown error'
+          }`,
         );
       }
     }
@@ -127,7 +129,8 @@ export class SeedingService {
         ? new Date(tmdbMovie.release_date).getFullYear()
         : undefined,
       duration: tmdbMovie.runtime || undefined,
-      posterUrl: this.tmdbService.getFullImageUrl(tmdbMovie.poster_path) || undefined,
+      posterUrl:
+        this.tmdbService.getFullImageUrl(tmdbMovie.poster_path) || undefined,
     };
 
     const movie = this.movieRepository.create(movieData);
@@ -181,9 +184,11 @@ export class SeedingService {
 
         // Small delay between actor requests
         await this.delay(100);
-      } catch (error) {
+      } catch (error: unknown) {
         this.logger.warn(
-          `Failed to process actor "${castMember.name}": ${error.message}`,
+          `Failed to process actor "${castMember.name}": ${
+            error instanceof Error ? error.message : 'Unknown error'
+          }`,
         );
       }
     }

@@ -3,6 +3,7 @@ import {Geist, Geist_Mono} from "next/font/google";
 import "./globals.css";
 import ReactQueryProvider from "../components/ReactQueryProvider";
 import Link from "next/link";
+import Image from "next/image";
 // import {ReactQueryDevtools} from "@tanstack/react-query-devtools";
 
 const geistSans = Geist({
@@ -38,7 +39,13 @@ export default function RootLayout({
               href="/"
               className="flex items-center gap-2 hover:opacity-80 transition-opacity w-fit"
             >
-              <img src="/file.svg" alt="Nestflix logo" className="h-8 w-8" />
+              <Image
+                src="/file.svg"
+                alt="Nestflix logo"
+                width={32}
+                height={32}
+                className="h-8 w-8"
+              />
               <span className="text-2xl sm:text-3xl md:text-4xl font-bold uppercase tracking-wider text-foreground">
                 Nestflix
               </span>

@@ -1,4 +1,6 @@
 import { PartialType, OmitType } from '@nestjs/mapped-types';
 import { CreateRatingDto } from './create-rating.dto';
 
-export class UpdateRatingDto extends PartialType(OmitType(CreateRatingDto, ['movieId'])) {}
+export class UpdateRatingDto extends PartialType(
+  OmitType(CreateRatingDto, ['movieId']),
+) {}

@@ -8,6 +8,7 @@ import {
 import {Button} from "@/components/ui/button";
 import {cn} from "@/lib/utils";
 import {Actor} from "@/lib/api";
+import Image from "next/image";
 
 interface ActorCardProps {
   actor: Actor;
@@ -16,7 +17,12 @@ interface ActorCardProps {
   showDetailsButton?: boolean;
 }
 
-export function ActorCard({actor, className, onViewDetails, showDetailsButton = true}: ActorCardProps) {
+export function ActorCard({
+  actor,
+  className,
+  onViewDetails,
+  showDetailsButton = true,
+}: ActorCardProps) {
   const fullName = `${actor.firstName} ${actor.lastName}`;
   const age = actor.dateOfBirth
     ? new Date().getFullYear() - new Date(actor.dateOfBirth).getFullYear()
@@ -38,9 +44,11 @@ export function ActorCard({actor, className, onViewDetails, showDetailsButton = 
       <CardHeader className="p-0">
         {actor.photoUrl && (
           <div className="relative h-48 sm:h-56 md:h-64 w-full overflow-hidden">
-            <img
+            <Image
               src={actor.photoUrl}
               alt={fullName}
+              width={192}
+              height={256}
               className="h-full w-full object-cover"
             />
             <div className="absolute top-1 sm:top-2 right-1 sm:right-2 bg-main text-main-foreground px-1.5 sm:px-2 py-0.5 sm:py-1 text-xs sm:text-sm font-bold border-2 border-border shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]">

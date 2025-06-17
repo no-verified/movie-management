@@ -1,34 +1,34 @@
-import { useState } from "react"
-import { Input } from "@/components/ui/input"
-import { Button } from "@/components/ui/button"
-import { cn } from "@/lib/utils"
+import {useState} from "react";
+import {Input} from "@/components/ui/input";
+import {Button} from "@/components/ui/button";
+import {cn} from "@/lib/utils";
 
 interface SearchBarProps {
-  placeholder?: string
-  onSearch: (query: string) => void
-  onClear?: () => void
-  className?: string
-  initialValue?: string
+  placeholder?: string;
+  onSearch: (query: string) => void;
+  onClear?: () => void;
+  className?: string;
+  initialValue?: string;
 }
 
-export function SearchBar({ 
-  placeholder = "Search...", 
-  onSearch, 
+export function SearchBar({
+  placeholder = "Search...",
+  onSearch,
   onClear,
   className,
-  initialValue = ""
+  initialValue = "",
 }: SearchBarProps) {
-  const [query, setQuery] = useState(initialValue)
+  const [query, setQuery] = useState(initialValue);
 
   const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
-    onSearch(query.trim())
-  }
+    e.preventDefault();
+    onSearch(query.trim());
+  };
 
   const handleClear = () => {
-    setQuery("")
-    onClear?.()
-  }
+    setQuery("");
+    onClear?.();
+  };
 
   return (
     <form onSubmit={handleSubmit} className={cn("flex gap-2", className)}>
@@ -42,7 +42,7 @@ export function SearchBar({
         {query && (
           <Button
             type="button"
-            variant="ghost"
+            variant="neutral"
             size="sm"
             onClick={handleClear}
             className="absolute right-1 top-1/2 transform -translate-y-1/2 h-8 px-2 text-xs"
@@ -55,5 +55,5 @@ export function SearchBar({
         Search
       </Button>
     </form>
-  )
+  );
 }

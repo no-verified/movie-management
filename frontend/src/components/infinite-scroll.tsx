@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import {useEffect, useRef} from "react";
 
 interface InfiniteScrollProps {
   hasNextPage: boolean;
@@ -50,7 +50,7 @@ export function InfiniteScroll({
   return (
     <div className={className}>
       {children}
-      
+
       {/* Trigger zone for infinite scroll */}
       <div ref={loadingRef} className="w-full">
         {isFetchingNextPage && (
@@ -59,10 +59,10 @@ export function InfiniteScroll({
             <p className="mt-4 text-lg font-medium">Loading more movies...</p>
           </div>
         )}
-        
+
         {!hasNextPage && !isFetchingNextPage && (
           <div className="text-center py-8 text-muted-foreground">
-            <p>You've reached the end of the collection</p>
+            <p>You&apos;ve reached the end of the collection</p>
           </div>
         )}
       </div>

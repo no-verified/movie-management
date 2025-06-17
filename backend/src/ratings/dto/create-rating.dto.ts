@@ -1,4 +1,11 @@
-import { IsNumber, IsOptional, IsString, Min, Max, Length } from 'class-validator';
+import {
+  IsNumber,
+  IsOptional,
+  IsString,
+  Min,
+  Max,
+  Length,
+} from 'class-validator';
 
 export class CreateRatingDto {
   @IsNumber({ maxDecimalPlaces: 1 })

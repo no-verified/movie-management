@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, Like, In } from 'typeorm';
+import { Repository, In } from 'typeorm';
 import { Actor } from '../entities';
 import { CreateActorDto, UpdateActorDto } from './dto';
 
@@ -61,10 +61,18 @@ export class ActorsService {
     return this.actorRepository
       .createQueryBuilder('actor')
       .leftJoinAndSelect('actor.movies', 'movies')
-      .where('LOWER(actor.firstName) LIKE LOWER(:query)', { query: `%${query}%` })
-      .orWhere('LOWER(actor.lastName) LIKE LOWER(:query)', { query: `%${query}%` })
-      .orWhere('LOWER(actor.nationality) LIKE LOWER(:query)', { query: `%${query}%` })
-      .orWhere('LOWER(actor.biography) LIKE LOWER(:query)', { query: `%${query}%` })
+      .where('LOWER(actor.firstName) LIKE LOWER(:query)', {
+        query: `%${query}%`,
+      })
+      .orWhere('LOWER(actor.lastName) LIKE LOWER(:query)', {
+        query: `%${query}%`,
+      })
+      .orWhere('LOWER(actor.nationality) LIKE LOWER(:query)', {
+        query: `%${query}%`,
+      })
+      .orWhere('LOWER(actor.biography) LIKE LOWER(:query)', {
+        query: `%${query}%`,
+      })
       .getMany();
   }
 
@@ -77,11 +85,13 @@ export class ActorsService {
   }
 
   async findRecent(limit = 6): Promise<Actor[]> {
-    const actorIds = await this.actorRepository
+    const actorIds: { actor_id: number }[] = await this.actorRepository
       .createQueryBuilder('actor')
       .leftJoin('actor.movies', 'movies')
       .leftJoin('movies.ratings', 'ratings')
-      .where('actor.photoUrl IS NOT NULL AND actor.photoUrl != :empty', { empty: '' })
+      .where('actor.photoUrl IS NOT NULL AND actor.photoUrl != :empty', {
+        empty: '',
+      })
       .andWhere('actor.firstName IS NOT NULL')
       .andWhere('actor.lastName IS NOT NULL')
       .andWhere('actor.biography IS NOT NULL')
@@ -97,10 +107,10 @@ export class ActorsService {
     if (actorIds.length === 0) return [];
 
     return this.actorRepository.find({
-      where: { id: In(actorIds.map(a => a.actor_id)) },
+      where: { id: In(actorIds.map((a) => a.actor_id)) },
       relations: ['movies'],
       order: { createdAt: 'DESC' },
-      take: limit
+      take: limit,
     });
   }
 }

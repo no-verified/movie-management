@@ -1,4 +1,12 @@
-import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, ManyToOne, JoinColumn } from 'typeorm';
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  CreateDateColumn,
+  UpdateDateColumn,
+  ManyToOne,
+  JoinColumn,
+} from 'typeorm';
 import { Movie } from './movie.entity';
 
 @Entity('ratings')
@@ -27,7 +35,7 @@ export class Rating {
   @Column()
   movieId: number;
 
-  @ManyToOne(() => Movie, movie => movie.ratings, { onDelete: 'CASCADE' })
+  @ManyToOne(() => Movie, (movie) => movie.ratings, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'movieId' })
   movie: Movie;
 }

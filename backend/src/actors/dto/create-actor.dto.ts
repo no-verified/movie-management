@@ -1,4 +1,10 @@
-import { IsString, IsOptional, IsDateString, IsUrl, Length } from 'class-validator';
+import {
+  IsString,
+  IsOptional,
+  IsDateString,
+  IsUrl,
+  Length,
+} from 'class-validator';
 
 export class CreateActorDto {
   @IsString()

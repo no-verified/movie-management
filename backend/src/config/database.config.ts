@@ -2,7 +2,9 @@ import { TypeOrmModuleOptions } from '@nestjs/typeorm';
 import { ConfigService } from '@nestjs/config';
 import { Movie, Actor, Rating } from '../entities';
 
-export const getDatabaseConfig = (configService: ConfigService): TypeOrmModuleOptions => ({
+export const getDatabaseConfig = (
+  configService: ConfigService,
+): TypeOrmModuleOptions => ({
   type: 'postgres',
   host: configService.get<string>('DB_HOST', 'localhost'),
   port: configService.get<number>('DB_PORT', 5432),

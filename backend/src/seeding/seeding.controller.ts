@@ -24,8 +24,8 @@ export class SeedingController {
         message: `Successfully seeded ${count} movies from TMDB API`,
         status: 'completed',
       };
-    } catch (error) {
-      if (error.message.includes('TMDB_API_KEY')) {
+    } catch (error: unknown) {
+      if (error instanceof Error && error.message.includes('TMDB_API_KEY')) {
         return {
           message:
             'TMDB API key not configured. Please add TMDB_API_KEY to your environment variables.',

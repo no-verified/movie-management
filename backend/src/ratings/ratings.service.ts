@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  BadRequestException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Rating, Movie } from '../entities';
@@ -15,13 +19,15 @@ export class RatingsService {
 
   async create(createRatingDto: CreateRatingDto): Promise<Rating> {
     const movie = await this.movieRepository.findOne({
-      where: { id: createRatingDto.movieId }
+      where: { id: createRatingDto.movieId },
     });
-    
+
     if (!movie) {
-      throw new BadRequestException(`Movie with ID ${createRatingDto.movieId} not found`);
+      throw new BadRequestException(
+        `Movie with ID ${createRatingDto.movieId} not found`,
+      );
     }
-    
+
     const rating = this.ratingRepository.create(createRatingDto);
     return this.ratingRepository.save(rating);
   }
@@ -37,11 +43,11 @@ export class RatingsService {
       where: { id },
       relations: ['movie'],
     });
-    
+
     if (!rating) {
       throw new NotFoundException(`Rating with ID ${id} not found`);
     }
-    
+
     return rating;
   }
 
@@ -54,9 +60,9 @@ export class RatingsService {
 
   async update(id: number, updateRatingDto: UpdateRatingDto): Promise<Rating> {
     const rating = await this.findOne(id);
-    
+
     Object.assign(rating, updateRatingDto);
-    
+
     return this.ratingRepository.save(rating);
   }
 
@@ -66,12 +72,12 @@ export class RatingsService {
   }
 
   async getAverageRating(movieId: number): Promise<number> {
-    const result = await this.ratingRepository
+    const result: { average: string } | undefined = await this.ratingRepository
       .createQueryBuilder('rating')
       .select('AVG(rating.score)', 'average')
       .where('rating.movieId = :movieId', { movieId })
       .getRawOne();
-    
-    return result.average ? parseFloat(result.average) : 0;
+
+    return result?.average ? parseFloat(result.average) : 0;
   }
 }

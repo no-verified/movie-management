@@ -8,6 +8,7 @@ import {
 import {Button} from "@/components/ui/button";
 import {cn} from "@/lib/utils";
 import {Movie} from "@/lib/api";
+import Image from "next/image";
 
 interface MovieCardProps {
   movie: Movie;
@@ -47,9 +48,11 @@ export function MovieCard({
       <CardHeader className="p-0 m-0 border-0">
         {movie.posterUrl && (
           <div className="relative h-48 sm:h-56 md:h-64 w-full overflow-hidden p-0 m-0">
-            <img
+            <Image
               src={movie.posterUrl}
               alt={movie.title}
+              width={192}
+              height={288}
               className="h-full w-full object-cover object-top block p-0 m-0"
               style={{objectPosition: "top"}}
             />

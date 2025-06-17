@@ -33,7 +33,7 @@ export class MoviesController {
   ) {
     const pageNumber = page ? parseInt(page, 10) : 1;
     const limitNumber = limit ? parseInt(limit, 10) : 20;
-    
+
     if (search) {
       return this.moviesService.search(search, pageNumber, limitNumber);
     }

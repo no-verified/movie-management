@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, Like, In } from 'typeorm';
+import { Repository, In } from 'typeorm';
 import { Movie, Actor } from '../entities';
 import { CreateMovieDto, UpdateMovieDto } from './dto';
 
@@ -28,9 +28,12 @@ export class MoviesService {
     return this.movieRepository.save(movie);
   }
 
-  async findAll(page = 1, limit = 20): Promise<{ movies: Movie[]; total: number; hasMore: boolean }> {
+  async findAll(
+    page = 1,
+    limit = 20,
+  ): Promise<{ movies: Movie[]; total: number; hasMore: boolean }> {
     const skip = (page - 1) * limit;
-    
+
     const [movies, total] = await this.movieRepository.findAndCount({
       relations: ['actors', 'ratings'],
       skip,
@@ -84,7 +87,11 @@ export class MoviesService {
     await this.movieRepository.remove(movie);
   }
 
-  async search(query: string, page = 1, limit = 20): Promise<{ movies: Movie[]; total: number; hasMore: boolean }> {
+  async search(
+    query: string,
+    page = 1,
+    limit = 20,
+  ): Promise<{ movies: Movie[]; total: number; hasMore: boolean }> {
     const skip = (page - 1) * limit;
 
     const queryBuilder = this.movieRepository
@@ -92,7 +99,9 @@ export class MoviesService {
       .leftJoinAndSelect('movie.actors', 'actors')
       .leftJoinAndSelect('movie.ratings', 'ratings')
       .where('LOWER(movie.title) LIKE LOWER(:query)', { query: `%${query}%` })
-      .orWhere('LOWER(movie.description) LIKE LOWER(:query)', { query: `%${query}%` })
+      .orWhere('LOWER(movie.description) LIKE LOWER(:query)', {
+        query: `%${query}%`,
+      })
       .orWhere('LOWER(movie.genre) LIKE LOWER(:query)', { query: `%${query}%` })
       .orderBy('movie.id', 'DESC')
       .skip(skip)
@@ -117,11 +126,13 @@ export class MoviesService {
   }
 
   async findRecent(limit = 6): Promise<Movie[]> {
-    const movieIds = await this.movieRepository
+    const movieIds: { movie_id: number }[] = await this.movieRepository
       .createQueryBuilder('movie')
       .leftJoin('movie.actors', 'actors')
       .leftJoin('movie.ratings', 'ratings')
-      .where('movie.posterUrl IS NOT NULL AND movie.posterUrl != :empty', { empty: '' })
+      .where('movie.posterUrl IS NOT NULL AND movie.posterUrl != :empty', {
+        empty: '',
+      })
       .andWhere('movie.title IS NOT NULL')
       .andWhere('movie.description IS NOT NULL')
       .andWhere('movie.genre IS NOT NULL')
@@ -137,10 +148,10 @@ export class MoviesService {
     if (movieIds.length === 0) return [];
 
     return this.movieRepository.find({
-      where: { id: In(movieIds.map(m => m.movie_id)) },
+      where: { id: In(movieIds.map((m) => m.movie_id)) },
       relations: ['actors', 'ratings'],
       order: { releaseYear: 'DESC' },
-      take: limit
+      take: limit,
     });
   }
 }

@@ -17,7 +17,8 @@ import { SeedingModule } from './seeding/seeding.module';
     }),
     TypeOrmModule.forRootAsync({
       inject: [ConfigService],
-      useFactory: (configService: ConfigService) => getDatabaseConfig(configService),
+      useFactory: (configService: ConfigService) =>
+        getDatabaseConfig(configService),
     }),
     MoviesModule,
     ActorsModule,
