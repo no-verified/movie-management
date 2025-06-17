@@ -1,4 +1,4 @@
-import { authService } from "./auth";
+import {authService} from "./auth";
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001";
 
@@ -50,10 +50,19 @@ class ApiService {
 
     // Ajouter automatiquement le token JWT pour toutes les requêtes protégées
     const authHeader = authService.getAuthHeader();
-    const headers: Record<string, string> = {
+    let headers: Record<string, string> = {
       "Content-Type": "application/json",
-      ...options.headers,
     };
+
+    if (options.headers) {
+      if (options.headers instanceof Headers) {
+        options.headers.forEach((value, key) => {
+          headers[key] = value;
+        });
+      } else {
+        headers = {...headers, ...(options.headers as Record<string, string>)};
+      }
+    }
 
     if (authHeader) {
       headers.Authorization = authHeader;
