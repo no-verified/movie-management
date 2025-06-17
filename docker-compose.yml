@@ -1,0 +1,102 @@
+services:
+  # PostgreSQL Database (same as production)
+  database:
+    image: postgres:15-alpine
+    container_name: movie_db_dev
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: movie_management
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+    volumes:
+      - postgres_data_dev:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    networks:
+      - movie_network_dev
+
+  # Backend Development (with hot reload)
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile.dev
+    container_name: movie_backend_dev
+    restart: unless-stopped
+    environment:
+      NODE_ENV: development
+      PORT: 3001
+      DB_HOST: database
+      DB_PORT: 5432
+      DB_USERNAME: postgres
+      DB_PASSWORD: password
+      DB_NAME: movie_management
+      DB_SYNC: true
+      DB_LOGGING: true
+      API_SECRET: your_super_secret_api_key_here
+      TMDB_API_KEY: 6e5073b21318d0579ebe869ec40cf4f7
+    volumes:
+      - ./backend:/app
+      - /app/node_modules
+    ports:
+      - "3001:3001"
+    depends_on:
+      - database
+    networks:
+      - movie_network_dev
+
+  # Frontend Development (with hot reload)
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile.dev
+    container_name: movie_frontend_dev
+    restart: unless-stopped
+    environment:
+      NODE_ENV: development
+      PORT: 3000
+      NEXT_PUBLIC_API_URL: http://localhost:3001
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+      - /app/.next
+    ports:
+      - "3000:3000"
+    depends_on:
+      - backend
+    networks:
+      - movie_network_dev
+
+  adminer:
+    image: adminer
+    container_name: adminer_dev
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    networks:
+      - movie_network_dev
+    profiles:
+      - tools
+
+  portainer:
+    image: portainer/portainer-ce:latest
+    container_name: portainer_dev
+    restart: unless-stopped
+    ports:
+      - "9000:9000"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - portainer_data_dev:/data
+    networks:
+      - movie_network_dev
+    profiles:
+      - tools
+
+volumes:
+  postgres_data_dev:
+    driver: local
+  portainer_data_dev:
+    driver: local
+
+networks:
+  movie_network_dev:
+    driver: bridge
