@@ -41,7 +41,7 @@ jobs:
       - name: TypeScript check backend
         run: |
           cd backend
-          npx tsc --noEmit
+          pnpm exec tsc --noEmit
 
       - name: Run backend tests
         run: |
