@@ -25,7 +25,7 @@ export default function MoviesPage() {
 
   // Flatten all pages into a single array of movies
   const movies = useMemo(() => {
-    return data?.pages.flatMap(page => page.movies || []) || [];
+    return data?.pages.flatMap((page) => page.movies || []) || [];
   }, [data]);
 
   const handleSearch = (query: string) => {
@@ -51,7 +51,7 @@ export default function MoviesPage() {
           🎬 All Movies
         </h1>
         <SearchBar
-          placeholder="Search movies by title, genre, or description..."
+          placeholder="Search movies by title, genre, or description... (e.g. 'jura')"
           onSearch={handleSearch}
           onClear={handleClear}
           initialValue={searchQuery}

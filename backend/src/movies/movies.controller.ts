@@ -36,7 +36,15 @@ export class MoviesController {
     const limitNumber = limit ? parseInt(limit, 10) : 20;
 
     if (search) {
-      return this.moviesService.search(search, pageNumber, limitNumber);
+      const result = await this.moviesService.search(
+        search,
+        pageNumber,
+        limitNumber,
+      );
+      return {
+        ...result,
+        movies: result.items,
+      };
     }
     const result = await this.moviesService.findAll(pageNumber, limitNumber);
     return {

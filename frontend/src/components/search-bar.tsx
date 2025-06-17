@@ -45,7 +45,7 @@ export function SearchBar({
             variant="neutral"
             size="sm"
             onClick={handleClear}
-            className="absolute right-1 top-1/2 transform -translate-y-1/2 h-8 px-2 text-xs"
+            className="absolute right-1 top-1/2 -translate-y-1/2 h-8 px-3 text-xs border-2 border-black box-border z-10 bg-white hover:bg-white transition-none"
           >
             Clear
           </Button>

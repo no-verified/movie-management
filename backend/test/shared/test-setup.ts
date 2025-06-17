@@ -39,7 +39,7 @@ export async function createTestApp(): Promise<INestApplication> {
       TypeOrmModule.forFeature([Movie, Actor, Rating, User]),
       PassportModule,
       JwtModule.register({
-        secret: 'test-secret',
+        secret: process.env.JWT_SECRET || 'your-secret-key',
         signOptions: { expiresIn: '1d' },
       }),
     ],
