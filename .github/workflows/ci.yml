@@ -38,20 +38,15 @@ jobs:
           cd backend
           pnpm run lint
 
-      - name: Run backend tests
-        run: |
-          cd backend
-          pnpm run test
-
-      - name: Run backend tests
-        run: |
-          cd backend
-          pnpm run test
-
       - name: TypeScript check backend
         run: |
           cd backend
           npx tsc --noEmit
+
+      - name: Run backend tests
+        run: |
+          cd backend
+          pnpm run test
 
   frontend-check:
     name: Frontend Check
@@ -88,7 +83,7 @@ jobs:
       - name: TypeScript check frontend
         run: |
           cd frontend
-          npx tsc --noEmit
+          pnpm run build
 
   create-tag:
     name: Create Tag
