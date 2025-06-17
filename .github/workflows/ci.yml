@@ -101,9 +101,20 @@ jobs:
         MINOR=${VERSION_PARTS[1]:-0}
         PATCH=${VERSION_PARTS[2]:-0}
         
-        # Increment patch version
-        PATCH=$((PATCH + 1))
-        NEW_TAG="${MAJOR}.${MINOR}.${PATCH}"
+        # Keep incrementing until we find an available tag
+        while true; do
+          PATCH=$((PATCH + 1))
+          NEW_TAG="${MAJOR}.${MINOR}.${PATCH}"
+          
+          # Check if this tag already exists
+          if git rev-parse "$NEW_TAG" >/dev/null 2>&1; then
+            echo "Tag $NEW_TAG already exists, trying next version..."
+            continue
+          else
+            echo "Found available tag: $NEW_TAG"
+            break
+          fi
+        done
         
         echo "new_tag=$NEW_TAG" >> $GITHUB_OUTPUT
         echo "New tag: $NEW_TAG"
