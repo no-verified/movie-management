@@ -54,9 +54,6 @@ importers:
         specifier: ^0.3.24
         version: 0.3.24(pg@8.16.0)(reflect-metadata@0.2.2)(sqlite3@5.1.7)(ts-node@10.9.2)
     devDependencies:
-      '@electric-sql/pglite':
-        specifier: ^0.3.3
-        version: 0.3.3
       '@eslint/eslintrc':
         specifier: ^3.2.0
         version: 3.2.0
@@ -624,10 +621,6 @@ packages:
     engines: {node: '>=12'}
     dependencies:
       '@jridgewell/trace-mapping': 0.3.9
-
-  /@electric-sql/pglite@0.3.3:
-    resolution: {integrity: sha512-JrvHOx9q0yvKEby0bK8qzGTVw6K+yEg8enxDWb2IwNKr5XZxRrBb+GNIqoAIP7yXyhRg5jcENWmdHmtnAT87vA==}
-    dev: true
 
   /@emnapi/core@1.4.3:
     resolution: {integrity: sha512-4m62DuCE07lw01soJwPiBGC0nAww0Q+RY70VZ+n49yDIO13yyinhbWCeNnaob0lakDtWQzSdtNWzJeOJt2ma+g==}

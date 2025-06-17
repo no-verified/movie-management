@@ -5,6 +5,7 @@ import {
   clearDatabase,
   API_KEY,
   expectErrorResponse,
+  getHttpServer,
 } from './shared/test-setup';
 import { Movie } from 'src/entities/movie.entity';
 
@@ -25,7 +26,7 @@ describe('Error Handling (e2e)', () => {
 
   describe('Global Exception Filter', () => {
     it('should return consistent error format for validation errors', async () => {
-      const response = await request(app.getHttpServer())
+      const response = await request(getHttpServer(app))
         .post('/movies')
         .set('Authorization', `Bearer ${API_KEY}`)
         .send({}) // Empty body should trigger validation errors
@@ -44,7 +45,7 @@ describe('Error Handling (e2e)', () => {
     });
 
     it('should return consistent error format for unauthorized requests', async () => {
-      const response = await request(app.getHttpServer())
+      const response = await request(getHttpServer(app))
         .post('/movies')
         .send({ title: 'Test Movie' })
         .expect(401);
@@ -61,7 +62,7 @@ describe('Error Handling (e2e)', () => {
     });
 
     it('should return consistent error format for not found errors', async () => {
-      const response = await request(app.getHttpServer())
+      const response = await request(getHttpServer(app))
         .get('/movies/99999')
         .expect(404);
 
@@ -77,7 +78,7 @@ describe('Error Handling (e2e)', () => {
     });
 
     it('should return consistent error format for forbidden properties', async () => {
-      const response = await request(app.getHttpServer())
+      const response = await request(getHttpServer(app))
         .post('/movies')
         .set('Authorization', `Bearer ${API_KEY}`)
         .send({
@@ -104,7 +105,7 @@ describe('Error Handling (e2e)', () => {
     });
 
     it('should return consistent error format for invalid data types', async () => {
-      const response = await request(app.getHttpServer())
+      const response = await request(getHttpServer(app))
         .post('/movies')
         .set('Authorization', `Bearer ${API_KEY}`)
         .send({
@@ -129,7 +130,7 @@ describe('Error Handling (e2e)', () => {
 
   describe('Authentication Errors', () => {
     it('should handle missing Authorization header', async () => {
-      const response = await request(app.getHttpServer())
+      const response = await request(getHttpServer(app))
         .post('/movies')
         .send({
           title: 'Test Movie',
@@ -148,7 +149,7 @@ describe('Error Handling (e2e)', () => {
     });
 
     it('should handle invalid Authorization format', async () => {
-      const response = await request(app.getHttpServer())
+      const response = await request(getHttpServer(app))
         .post('/movies')
         .set('Authorization', 'InvalidFormat')
         .send({
@@ -168,7 +169,7 @@ describe('Error Handling (e2e)', () => {
     });
 
     it('should handle invalid API key in Authorization header', async () => {
-      const response = await request(app.getHttpServer())
+      const response = await request(getHttpServer(app))
         .post('/movies')
         .set('Authorization', 'Bearer invalid-key')
         .send({
@@ -188,7 +189,7 @@ describe('Error Handling (e2e)', () => {
     });
 
     it('should handle missing x-api-key header', async () => {
-      const response = await request(app.getHttpServer())
+      const response = await request(getHttpServer(app))
         .post('/actors')
         .send({
           firstName: 'Test',
@@ -207,7 +208,7 @@ describe('Error Handling (e2e)', () => {
     });
 
     it('should handle invalid x-api-key header', async () => {
-      const response = await request(app.getHttpServer())
+      const response = await request(getHttpServer(app))
         .post('/actors')
         .set('x-api-key', 'invalid-key')
         .send({
@@ -229,7 +230,7 @@ describe('Error Handling (e2e)', () => {
 
   describe('Validation Errors', () => {
     it('should handle multiple validation errors', async () => {
-      const response = await request(app.getHttpServer())
+      const response = await request(getHttpServer(app))
         .post('/movies')
         .set('Authorization', `Bearer ${API_KEY}`)
         .send({
@@ -252,7 +253,7 @@ describe('Error Handling (e2e)', () => {
     });
 
     it('should handle validation errors for actors', async () => {
-      const response = await request(app.getHttpServer())
+      const response = await request(getHttpServer(app))
         .post('/actors')
         .set('x-api-key', API_KEY)
         .send({
@@ -276,7 +277,7 @@ describe('Error Handling (e2e)', () => {
 
     it('should handle validation errors for ratings', async () => {
       // First create a movie
-      const movieResponse = await request(app.getHttpServer())
+      const movieResponse = await request(getHttpServer(app))
         .post('/movies')
         .set('Authorization', `Bearer ${API_KEY}`)
         .send({
@@ -287,7 +288,7 @@ describe('Error Handling (e2e)', () => {
 
       const movieBody = movieResponse.body as Movie;
 
-      const response = await request(app.getHttpServer())
+      const response = await request(getHttpServer(app))
         .post('/ratings')
         .set('Authorization', `Bearer ${API_KEY}`)
         .send({
@@ -312,7 +313,7 @@ describe('Error Handling (e2e)', () => {
 
   describe('Not Found Errors', () => {
     it('should handle non-existent movie ID', async () => {
-      const response = await request(app.getHttpServer())
+      const response = await request(getHttpServer(app))
         .get('/movies/99999')
         .expect(404);
 
@@ -326,7 +327,7 @@ describe('Error Handling (e2e)', () => {
     });
 
     it('should handle non-existent actor ID', async () => {
-      const response = await request(app.getHttpServer())
+      const response = await request(getHttpServer(app))
         .get('/actors/99999')
         .expect(404);
 
@@ -340,7 +341,7 @@ describe('Error Handling (e2e)', () => {
     });
 
     it('should handle non-existent rating ID', async () => {
-      const response = await request(app.getHttpServer())
+      const response = await request(getHttpServer(app))
         .get('/ratings/99999')
         .expect(404);
 
@@ -354,7 +355,7 @@ describe('Error Handling (e2e)', () => {
     });
 
     it('should handle update of non-existent movie', async () => {
-      const response = await request(app.getHttpServer())
+      const response = await request(getHttpServer(app))
         .patch('/movies/99999')
         .set('Authorization', `Bearer ${API_KEY}`)
         .send({ title: 'Updated Title' })
@@ -370,7 +371,7 @@ describe('Error Handling (e2e)', () => {
     });
 
     it('should handle delete of non-existent actor', async () => {
-      const response = await request(app.getHttpServer())
+      const response = await request(getHttpServer(app))
         .delete('/actors/99999')
         .set('x-api-key', API_KEY)
         .expect(404);
@@ -387,17 +388,15 @@ describe('Error Handling (e2e)', () => {
 
   describe('Bad Request Errors', () => {
     it('should handle invalid ID format in URL parameters', async () => {
-      await request(app.getHttpServer()).get('/movies/invalid-id').expect(400);
+      await request(getHttpServer(app)).get('/movies/invalid-id').expect(400);
 
-      await request(app.getHttpServer())
-        .get('/actors/not-a-number')
-        .expect(400);
+      await request(getHttpServer(app)).get('/actors/not-a-number').expect(400);
 
-      await request(app.getHttpServer()).get('/ratings/abc123').expect(400);
+      await request(getHttpServer(app)).get('/ratings/abc123').expect(400);
     });
 
     it('should handle rating for non-existent movie', async () => {
-      const response = await request(app.getHttpServer())
+      const response = await request(getHttpServer(app))
         .post('/ratings')
         .set('Authorization', `Bearer ${API_KEY}`)
         .send({
@@ -416,7 +415,7 @@ describe('Error Handling (e2e)', () => {
     });
 
     it('should handle movie creation with non-existent actor IDs', async () => {
-      const response = await request(app.getHttpServer())
+      const response = await request(getHttpServer(app))
         .post('/movies')
         .set('Authorization', `Bearer ${API_KEY}`)
         .send({
@@ -436,7 +435,7 @@ describe('Error Handling (e2e)', () => {
   describe('Method Not Allowed', () => {
     it('should handle unsupported HTTP methods', async () => {
       // PUT is not supported, only PATCH
-      await request(app.getHttpServer())
+      await request(getHttpServer(app))
         .put('/movies/1')
         .set('Authorization', `Bearer ${API_KEY}`)
         .send({ title: 'Updated Title' })
@@ -446,7 +445,7 @@ describe('Error Handling (e2e)', () => {
 
   describe('Content Type Errors', () => {
     it('should handle malformed JSON', async () => {
-      const response = await request(app.getHttpServer())
+      const response = await request(getHttpServer(app))
         .post('/movies')
         .set('Authorization', `Bearer ${API_KEY}`)
         .set('Content-Type', 'application/json')
@@ -460,11 +459,11 @@ describe('Error Handling (e2e)', () => {
 
   describe('Route Not Found', () => {
     it('should handle non-existent routes', async () => {
-      await request(app.getHttpServer()).get('/non-existent-route').expect(404);
+      await request(getHttpServer(app)).get('/non-existent-route').expect(404);
     });
 
     it('should handle root route', async () => {
-      await request(app.getHttpServer()).get('/').expect(404); // No root controller defined
+      await request(getHttpServer(app)).get('/').expect(404); // No root controller defined
     });
   });
 });

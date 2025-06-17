@@ -5,6 +5,7 @@ import {
   clearDatabase,
   API_KEY,
   expectErrorResponse,
+  getHttpServer,
 } from './shared/test-setup';
 import { Actor } from 'src/entities/actor.entity';
 import { Movie } from 'src/entities/movie.entity';
@@ -35,7 +36,7 @@ describe('Actors API (e2e)', () => {
         photoUrl: 'https://example.com/photo.jpg',
       };
 
-      const response = await request(app.getHttpServer())
+      const response = await request(getHttpServer(app))
         .post('/actors')
         .set('x-api-key', API_KEY)
         .send(createActorDto)
@@ -58,7 +59,7 @@ describe('Actors API (e2e)', () => {
         dateOfBirth: '1990-05-15',
       };
 
-      const response = await request(app.getHttpServer())
+      const response = await request(getHttpServer(app))
         .post('/actors')
         .set('x-api-key', API_KEY)
         .send(createActorDto)
@@ -76,7 +77,7 @@ describe('Actors API (e2e)', () => {
         dateOfBirth: '1980-01-01',
       };
 
-      const response = await request(app.getHttpServer())
+      const response = await request(getHttpServer(app))
         .post('/actors')
         .send(createActorDto)
         .expect(401);
@@ -90,7 +91,7 @@ describe('Actors API (e2e)', () => {
         nationality: 'American',
       };
 
-      const response = await request(app.getHttpServer())
+      const response = await request(getHttpServer(app))
         .post('/actors')
         .set('x-api-key', API_KEY)
         .send(invalidActorDto)
@@ -120,7 +121,7 @@ describe('Actors API (e2e)', () => {
         dateOfBirth: 'invalid-date',
       };
 
-      const response = await request(app.getHttpServer())
+      const response = await request(getHttpServer(app))
         .post('/actors')
         .set('x-api-key', API_KEY)
         .send(invalidActorDto)
@@ -141,7 +142,7 @@ describe('Actors API (e2e)', () => {
         nationality: 'c'.repeat(101), // Too long
       };
 
-      const response = await request(app.getHttpServer())
+      const response = await request(getHttpServer(app))
         .post('/actors')
         .set('x-api-key', API_KEY)
         .send(invalidActorDto)
@@ -170,7 +171,7 @@ describe('Actors API (e2e)', () => {
         photoUrl: 'not-a-valid-url',
       };
 
-      const response = await request(app.getHttpServer())
+      const response = await request(getHttpServer(app))
         .post('/actors')
         .set('x-api-key', API_KEY)
         .send(invalidActorDto)
@@ -187,7 +188,7 @@ describe('Actors API (e2e)', () => {
         extraProperty: 'should not be allowed',
       };
 
-      const response = await request(app.getHttpServer())
+      const response = await request(getHttpServer(app))
         .post('/actors')
         .set('x-api-key', API_KEY)
         .send(invalidActorDto)
@@ -204,7 +205,7 @@ describe('Actors API (e2e)', () => {
   describe('GET /actors', () => {
     beforeEach(async () => {
       // Create test data
-      await request(app.getHttpServer())
+      await request(getHttpServer(app))
         .post('/actors')
         .set('x-api-key', API_KEY)
         .send({
@@ -214,7 +215,7 @@ describe('Actors API (e2e)', () => {
           nationality: 'American',
         });
 
-      await request(app.getHttpServer())
+      await request(getHttpServer(app))
         .post('/actors')
         .set('x-api-key', API_KEY)
         .send({
@@ -226,7 +227,7 @@ describe('Actors API (e2e)', () => {
     });
 
     it('should return all actors', async () => {
-      const response = await request(app.getHttpServer())
+      const response = await request(getHttpServer(app))
         .get('/actors')
         .expect(200);
 
@@ -240,7 +241,7 @@ describe('Actors API (e2e)', () => {
     });
 
     it('should support search by first name', async () => {
-      const response = await request(app.getHttpServer())
+      const response = await request(getHttpServer(app))
         .get('/actors?search=John')
         .expect(200);
 
@@ -252,7 +253,7 @@ describe('Actors API (e2e)', () => {
     });
 
     it('should support search by last name', async () => {
-      const response = await request(app.getHttpServer())
+      const response = await request(getHttpServer(app))
         .get('/actors?search=Smith')
         .expect(200);
 
@@ -264,7 +265,7 @@ describe('Actors API (e2e)', () => {
     });
 
     it('should support search by full name', async () => {
-      const response = await request(app.getHttpServer())
+      const response = await request(getHttpServer(app))
         .get('/actors?search=Jane Smith')
         .expect(200);
 
@@ -277,7 +278,7 @@ describe('Actors API (e2e)', () => {
     });
 
     it('should return empty array for no matches', async () => {
-      const response = await request(app.getHttpServer())
+      const response = await request(getHttpServer(app))
         .get('/actors?search=NonExistent')
         .expect(200);
 
@@ -292,7 +293,7 @@ describe('Actors API (e2e)', () => {
     let actorId: number;
 
     beforeEach(async () => {
-      const response = await request(app.getHttpServer())
+      const response = await request(getHttpServer(app))
         .post('/actors')
         .set('x-api-key', API_KEY)
         .send({
@@ -307,7 +308,7 @@ describe('Actors API (e2e)', () => {
     });
 
     it('should return an actor by id', async () => {
-      const response = await request(app.getHttpServer())
+      const response = await request(getHttpServer(app))
         .get(`/actors/${actorId}`)
         .expect(200);
 
@@ -319,7 +320,7 @@ describe('Actors API (e2e)', () => {
     });
 
     it('should return 404 for non-existent actor', async () => {
-      const response = await request(app.getHttpServer())
+      const response = await request(getHttpServer(app))
         .get('/actors/99999')
         .expect(404);
 
@@ -327,7 +328,7 @@ describe('Actors API (e2e)', () => {
     });
 
     it('should return 400 for invalid ID format', async () => {
-      await request(app.getHttpServer()).get('/actors/invalid-id').expect(400);
+      await request(getHttpServer(app)).get('/actors/invalid-id').expect(400);
     });
   });
 
@@ -337,7 +338,7 @@ describe('Actors API (e2e)', () => {
 
     beforeEach(async () => {
       // Create actor
-      const actorResponse = await request(app.getHttpServer())
+      const actorResponse = await request(getHttpServer(app))
         .post('/actors')
         .set('x-api-key', API_KEY)
         .send({
@@ -349,7 +350,7 @@ describe('Actors API (e2e)', () => {
       actorId = body.id;
 
       // Create movie with actor
-      const movieResponse = await request(app.getHttpServer())
+      const movieResponse = await request(getHttpServer(app))
         .post('/movies')
         .set('Authorization', `Bearer ${API_KEY}`)
         .send({
@@ -363,7 +364,7 @@ describe('Actors API (e2e)', () => {
     });
 
     it('should return movies for an actor', async () => {
-      const response = await request(app.getHttpServer())
+      const response = await request(getHttpServer(app))
         .get(`/actors/${actorId}/movies`)
         .expect(200);
 
@@ -377,7 +378,7 @@ describe('Actors API (e2e)', () => {
 
     it('should return empty array for actor with no movies', async () => {
       // Create another actor without movies
-      const actorResponse = await request(app.getHttpServer())
+      const actorResponse = await request(getHttpServer(app))
         .post('/actors')
         .set('x-api-key', API_KEY)
         .send({
@@ -388,7 +389,7 @@ describe('Actors API (e2e)', () => {
 
       const actorBody = actorResponse.body as Actor;
 
-      const response = await request(app.getHttpServer())
+      const response = await request(getHttpServer(app))
         .get(`/actors/${actorBody.id}/movies`)
         .expect(200);
 
@@ -403,7 +404,7 @@ describe('Actors API (e2e)', () => {
     let actorId: number;
 
     beforeEach(async () => {
-      const response = await request(app.getHttpServer())
+      const response = await request(getHttpServer(app))
         .post('/actors')
         .set('x-api-key', API_KEY)
         .send({
@@ -422,7 +423,7 @@ describe('Actors API (e2e)', () => {
         biography: 'Updated biography',
       };
 
-      const response = await request(app.getHttpServer())
+      const response = await request(getHttpServer(app))
         .patch(`/actors/${actorId}`)
         .set('x-api-key', API_KEY)
         .send(updateData)
@@ -437,7 +438,7 @@ describe('Actors API (e2e)', () => {
     });
 
     it('should require API key for update', async () => {
-      const response = await request(app.getHttpServer())
+      const response = await request(getHttpServer(app))
         .patch(`/actors/${actorId}`)
         .send({ firstName: 'Updated' })
         .expect(401);
@@ -446,7 +447,7 @@ describe('Actors API (e2e)', () => {
     });
 
     it('should return 404 for non-existent actor', async () => {
-      const response = await request(app.getHttpServer())
+      const response = await request(getHttpServer(app))
         .patch('/actors/99999')
         .set('x-api-key', API_KEY)
         .send({ firstName: 'Updated' })
@@ -461,7 +462,7 @@ describe('Actors API (e2e)', () => {
         photoUrl: 'not-a-valid-url',
       };
 
-      const response = await request(app.getHttpServer())
+      const response = await request(getHttpServer(app))
         .patch(`/actors/${actorId}`)
         .set('x-api-key', API_KEY)
         .send(invalidUpdateData)
@@ -482,7 +483,7 @@ describe('Actors API (e2e)', () => {
     let actorId: number;
 
     beforeEach(async () => {
-      const response = await request(app.getHttpServer())
+      const response = await request(getHttpServer(app))
         .post('/actors')
         .set('x-api-key', API_KEY)
         .send({
@@ -495,17 +496,17 @@ describe('Actors API (e2e)', () => {
     });
 
     it('should delete an actor', async () => {
-      await request(app.getHttpServer())
+      await request(getHttpServer(app))
         .delete(`/actors/${actorId}`)
         .set('x-api-key', API_KEY)
         .expect(204);
 
       // Verify actor is deleted
-      await request(app.getHttpServer()).get(`/actors/${actorId}`).expect(404);
+      await request(getHttpServer(app)).get(`/actors/${actorId}`).expect(404);
     });
 
     it('should require API key for deletion', async () => {
-      const response = await request(app.getHttpServer())
+      const response = await request(getHttpServer(app))
         .delete(`/actors/${actorId}`)
         .expect(401);
 
@@ -513,7 +514,7 @@ describe('Actors API (e2e)', () => {
     });
 
     it('should return 404 for non-existent actor', async () => {
-      const response = await request(app.getHttpServer())
+      const response = await request(getHttpServer(app))
         .delete('/actors/99999')
         .set('x-api-key', API_KEY)
         .expect(404);
@@ -526,7 +527,7 @@ describe('Actors API (e2e)', () => {
     it('should return recent actors', async () => {
       // Create actor with movie and rating (required for recent actors)
       // Recent actors require all fields to be populated
-      const actorResponse = await request(app.getHttpServer())
+      const actorResponse = await request(getHttpServer(app))
         .post('/actors')
         .set('x-api-key', API_KEY)
         .send({
@@ -538,7 +539,7 @@ describe('Actors API (e2e)', () => {
           photoUrl: 'https://example.com/recent-actor.jpg',
         });
 
-      const movieResponse = await request(app.getHttpServer())
+      const movieResponse = await request(getHttpServer(app))
         .post('/movies')
         .set('Authorization', `Bearer ${API_KEY}`)
         .send({
@@ -550,7 +551,7 @@ describe('Actors API (e2e)', () => {
 
       const movieBody = movieResponse.body as Movie;
 
-      await request(app.getHttpServer())
+      await request(getHttpServer(app))
         .post('/ratings')
         .set('Authorization', `Bearer ${API_KEY}`)
         .send({
@@ -558,7 +559,7 @@ describe('Actors API (e2e)', () => {
           movieId: movieBody.id,
         });
 
-      const response = await request(app.getHttpServer())
+      const response = await request(getHttpServer(app))
         .get('/actors/recent')
         .expect(200);
 

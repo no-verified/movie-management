@@ -27,7 +27,7 @@ export class MoviesController {
   }
 
   @Get()
-  findAll(
+  async getMovies(
     @Query('search') search?: string,
     @Query('page') page?: string,
     @Query('limit') limit?: string,
@@ -38,7 +38,11 @@ export class MoviesController {
     if (search) {
       return this.moviesService.search(search, pageNumber, limitNumber);
     }
-    return this.moviesService.findAll(pageNumber, limitNumber);
+    const result = await this.moviesService.findAll(pageNumber, limitNumber);
+    return {
+      ...result,
+      movies: result.items,
+    };
   }
 
   @Get('recent')

@@ -111,3 +111,9 @@ export function expectErrorResponse(
     }
   }
 }
+
+export function getHttpServer(
+  app: INestApplication,
+): Parameters<typeof import('supertest')>[0] {
+  return app.getHttpServer() as Parameters<typeof import('supertest')>[0];
+}
