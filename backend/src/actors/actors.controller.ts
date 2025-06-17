@@ -1,0 +1,65 @@
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  Query,
+  ParseIntPipe,
+  ValidationPipe,
+  UseGuards,
+} from '@nestjs/common';
+import { ActorsService } from './actors.service';
+import { CreateActorDto, UpdateActorDto } from './dto';
+import { ApiKeyGuard } from '../auth/guards';
+
+@Controller('actors')
+export class ActorsController {
+  constructor(private readonly actorsService: ActorsService) {}
+
+  @Post()
+  @UseGuards(ApiKeyGuard)
+  create(@Body(ValidationPipe) createActorDto: CreateActorDto) {
+    return this.actorsService.create(createActorDto);
+  }
+
+  @Get('recent')
+  findRecent() {
+    return this.actorsService.findRecent();
+  }
+
+  @Get()
+  findAll(@Query('search') search?: string) {
+    if (search) {
+      return this.actorsService.search(search);
+    }
+    return this.actorsService.findAll();
+  }
+
+  @Get(':id')
+  findOne(@Param('id', ParseIntPipe) id: number) {
+    return this.actorsService.findOne(id);
+  }
+
+  @Get(':id/movies')
+  getMoviesByActor(@Param('id', ParseIntPipe) id: number) {
+    return this.actorsService.findOne(id).then((actor) => actor.movies);
+  }
+
+  @Patch(':id')
+  @UseGuards(ApiKeyGuard)
+  update(
+    @Param('id', ParseIntPipe) id: number,
+    @Body(ValidationPipe) updateActorDto: UpdateActorDto,
+  ) {
+    return this.actorsService.update(id, updateActorDto);
+  }
+
+  @Delete(':id')
+  @UseGuards(ApiKeyGuard)
+  remove(@Param('id', ParseIntPipe) id: number) {
+    return this.actorsService.remove(id);
+  }
+}

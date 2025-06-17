@@ -1,0 +1,117 @@
+name: CI Pipeline
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+
+env:
+  NODE_VERSION: '20'
+  PNPM_VERSION: '10.12.1'
+
+jobs:
+  backend-build:
+    name: Backend Build
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ env.NODE_VERSION }}
+        
+    - name: Setup pnpm
+      uses: pnpm/action-setup@v4
+      with:
+        version: ${{ env.PNPM_VERSION }}
+        
+    - name: Install backend dependencies
+      run: |
+        cd backend
+        pnpm install --frozen-lockfile
+        
+    - name: Lint backend
+      run: |
+        cd backend
+        pnpm run lint
+        
+    - name: Build backend
+      run: |
+        cd backend
+        pnpm run build
+
+  frontend-build:
+    name: Frontend Build
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ env.NODE_VERSION }}
+        
+    - name: Setup pnpm
+      uses: pnpm/action-setup@v4
+      with:
+        version: ${{ env.PNPM_VERSION }}
+        
+    - name: Install frontend dependencies
+      run: |
+        cd frontend
+        pnpm install --frozen-lockfile
+        
+    - name: Lint frontend
+      run: |
+        cd frontend
+        pnpm run lint
+        
+    - name: Build frontend
+      run: |
+        cd frontend
+        pnpm run build
+
+  create-tag:
+    name: Create Tag
+    runs-on: ubuntu-latest
+    needs: [backend-build, frontend-build]
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    permissions:
+      contents: write
+    
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+        
+    - name: Generate tag
+      id: tag
+      run: |
+        # Get the latest tag, increment patch version
+        LATEST_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "0.0.0")
+        echo "Latest tag: $LATEST_TAG"
+        
+        # Extract version numbers
+        IFS='.' read -r -a VERSION_PARTS <<< "$LATEST_TAG"
+        MAJOR=${VERSION_PARTS[0]:-0}
+        MINOR=${VERSION_PARTS[1]:-0}
+        PATCH=${VERSION_PARTS[2]:-0}
+        
+        # Increment patch version
+        PATCH=$((PATCH + 1))
+        NEW_TAG="${MAJOR}.${MINOR}.${PATCH}"
+        
+        echo "new_tag=$NEW_TAG" >> $GITHUB_OUTPUT
+        echo "New tag: $NEW_TAG"
+        
+    - name: Create and push tag
+      run: |
+        git config user.name github-actions
+        git config user.email github-actions@github.com
+        git tag ${{ steps.tag.outputs.new_tag }}
+        git push origin ${{ steps.tag.outputs.new_tag }}
+
