@@ -19,10 +19,10 @@
   },
   "lint-staged": {
     "frontend/**/*.{ts,tsx,js,jsx}": [
-      "pnpm --filter frontend lint --fix ."
+      "bash -c 'cd frontend && pnpm lint:fix'"
     ],
     "backend/**/*.{ts,js}": [
-      "pnpm --filter backend lint --fix"
+      "bash -c 'cd backend && pnpm lint'"
     ]
   }
 }
