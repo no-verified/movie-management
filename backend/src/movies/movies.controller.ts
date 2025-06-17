@@ -8,8 +8,8 @@ import {
   Delete,
   Query,
   ParseIntPipe,
-  ValidationPipe,
   UseGuards,
+  HttpCode,
 } from '@nestjs/common';
 import { MoviesService } from './movies.service';
 import { CreateMovieDto, UpdateMovieDto } from './dto';
@@ -20,8 +20,9 @@ export class MoviesController {
   constructor(private readonly moviesService: MoviesService) {}
 
   @Post()
+  @HttpCode(201)
   @UseGuards(ApiKeyGuard)
-  create(@Body(ValidationPipe) createMovieDto: CreateMovieDto) {
+  create(@Body() createMovieDto: CreateMovieDto) {
     return this.moviesService.create(createMovieDto);
   }
 
@@ -56,17 +57,19 @@ export class MoviesController {
   }
 
   @Patch(':id')
+  @HttpCode(200)
   @UseGuards(ApiKeyGuard)
   update(
     @Param('id', ParseIntPipe) id: number,
-    @Body(ValidationPipe) updateMovieDto: UpdateMovieDto,
+    @Body() updateMovieDto: UpdateMovieDto,
   ) {
     return this.moviesService.update(id, updateMovieDto);
   }
 
   @Delete(':id')
+  @HttpCode(204)
   @UseGuards(ApiKeyGuard)
-  remove(@Param('id', ParseIntPipe) id: number) {
-    return this.moviesService.remove(id);
+  async remove(@Param('id', ParseIntPipe) id: number): Promise<void> {
+    await this.moviesService.remove(id);
   }
 }

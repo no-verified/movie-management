@@ -3,6 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, In } from 'typeorm';
 import { Movie, Actor } from '../entities';
 import { CreateMovieDto, UpdateMovieDto } from './dto';
+import { PaginatedResult } from 'src/common/types/paginated-result.type';
 
 @Injectable()
 export class MoviesService {
@@ -28,10 +29,7 @@ export class MoviesService {
     return this.movieRepository.save(movie);
   }
 
-  async findAll(
-    page = 1,
-    limit = 20,
-  ): Promise<{ movies: Movie[]; total: number; hasMore: boolean }> {
+  async findAll(page = 1, limit = 20): Promise<PaginatedResult<Movie>> {
     const skip = (page - 1) * limit;
 
     const [movies, total] = await this.movieRepository.findAndCount({
@@ -42,7 +40,7 @@ export class MoviesService {
     });
 
     return {
-      movies,
+      items: movies,
       total,
       hasMore: skip + movies.length < total,
     };
@@ -91,18 +89,17 @@ export class MoviesService {
     query: string,
     page = 1,
     limit = 20,
-  ): Promise<{ movies: Movie[]; total: number; hasMore: boolean }> {
+  ): Promise<PaginatedResult<Movie>> {
     const skip = (page - 1) * limit;
 
     const queryBuilder = this.movieRepository
       .createQueryBuilder('movie')
       .leftJoinAndSelect('movie.actors', 'actors')
       .leftJoinAndSelect('movie.ratings', 'ratings')
-      .where('LOWER(movie.title) LIKE LOWER(:query)', { query: `%${query}%` })
-      .orWhere('LOWER(movie.description) LIKE LOWER(:query)', {
-        query: `%${query}%`,
-      })
-      .orWhere('LOWER(movie.genre) LIKE LOWER(:query)', { query: `%${query}%` })
+      .where(
+        'LOWER(movie.title) LIKE LOWER(:query) OR LOWER(movie.genre) LIKE LOWER(:query) OR LOWER(movie.description) LIKE LOWER(:query)',
+        { query: `%${query}%` },
+      )
       .orderBy('movie.id', 'DESC')
       .skip(skip)
       .take(limit);
@@ -110,7 +107,7 @@ export class MoviesService {
     const [movies, total] = await queryBuilder.getManyAndCount();
 
     return {
-      movies,
+      items: movies,
       total,
       hasMore: skip + movies.length < total,
     };

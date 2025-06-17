@@ -15,9 +15,8 @@ export class CreateActorDto {
   @Length(1, 100)
   lastName: string;
 
-  @IsOptional()
   @IsDateString()
-  dateOfBirth?: string;
+  dateOfBirth: string;
 
   @IsOptional()
   @IsString()

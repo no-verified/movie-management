@@ -54,6 +54,7 @@ make tools           # Start all tools (Adminer + Portainer)
 - **Database**: postgresql://postgres:password@localhost:5432/movie_management
 
 ### Optional Tools
+
 - **Adminer** (DB UI): http://localhost:8080 (`make adminer`)
 - **Portainer** (Docker UI): http://localhost:9000 (`make portainer`)
 
@@ -64,6 +65,8 @@ All API endpoints require the `X-API-Key` header:
 ```bash
 curl -H "X-API-Key: your_super_secret_api_key_here" http://localhost:3001/movies
 ```
+
+(the secret key is literally `super_secret_api_key`)
 
 ## 🏗️ Architecture
 
@@ -92,7 +95,7 @@ docker-compose logs database
 # Access database directly
 docker-compose exec database psql -U postgres -d movie_management
 
-# Run tests (if available)
+# Run tests
 docker-compose exec backend pnpm test
 ```
 

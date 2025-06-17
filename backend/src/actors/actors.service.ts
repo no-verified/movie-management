@@ -58,22 +58,33 @@ export class ActorsService {
   }
 
   async search(query: string): Promise<Actor[]> {
-    return this.actorRepository
+    // Découper la requête en mots, ignorer les espaces multiples
+    const words = query.trim().split(/\s+/).filter(Boolean);
+    let qb = this.actorRepository
       .createQueryBuilder('actor')
-      .leftJoinAndSelect('actor.movies', 'movies')
-      .where('LOWER(actor.firstName) LIKE LOWER(:query)', {
-        query: `%${query}%`,
-      })
-      .orWhere('LOWER(actor.lastName) LIKE LOWER(:query)', {
-        query: `%${query}%`,
-      })
-      .orWhere('LOWER(actor.nationality) LIKE LOWER(:query)', {
-        query: `%${query}%`,
-      })
-      .orWhere('LOWER(actor.biography) LIKE LOWER(:query)', {
-        query: `%${query}%`,
-      })
-      .getMany();
+      .leftJoinAndSelect('actor.movies', 'movies');
+
+    // Recherche sur chaque mot dans prénom, nom, et nom complet
+    words.forEach((word, idx) => {
+      const param = `word${idx}`;
+      if (idx === 0) {
+        qb = qb.where(
+          `LOWER(actor.firstName) LIKE LOWER(:${param}) OR LOWER(actor.lastName) LIKE LOWER(:${param}) OR LOWER(CONCAT(actor.firstName, ' ', actor.lastName)) LIKE LOWER(:${param})`,
+          { [param]: `%${word}%` },
+        );
+      } else {
+        qb = qb.andWhere(
+          `(
+            LOWER(actor.firstName) LIKE LOWER(:${param}) OR
+            LOWER(actor.lastName) LIKE LOWER(:${param}) OR
+            LOWER(CONCAT(actor.firstName, ' ', actor.lastName)) LIKE LOWER(:${param})
+          )`,
+          { [param]: `%${word}%` },
+        );
+      }
+    });
+
+    return qb.getMany();
   }
 
   async findByMovie(movieId: number): Promise<Actor[]> {

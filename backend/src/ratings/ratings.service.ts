@@ -71,13 +71,23 @@ export class RatingsService {
     await this.ratingRepository.remove(rating);
   }
 
-  async getAverageRating(movieId: number): Promise<number> {
-    const result: { average: string } | undefined = await this.ratingRepository
-      .createQueryBuilder('rating')
-      .select('AVG(rating.score)', 'average')
-      .where('rating.movieId = :movieId', { movieId })
-      .getRawOne();
+  async getAverageRating(
+    movieId: number,
+  ): Promise<{ average: number; count: number } | null> {
+    const ratings = await this.ratingRepository.find({
+      where: { movieId },
+    });
 
-    return result?.average ? parseFloat(result.average) : 0;
+    if (ratings.length === 0) {
+      return null;
+    }
+
+    const sum = ratings.reduce((acc, rating) => acc + rating.score, 0);
+    const average = sum / ratings.length;
+
+    return {
+      average: Math.round(average * 10) / 10, // Round to 1 decimal place
+      count: ratings.length,
+    };
   }
 }

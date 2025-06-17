@@ -8,8 +8,8 @@ import {
   Delete,
   Query,
   ParseIntPipe,
-  ValidationPipe,
   UseGuards,
+  HttpCode,
 } from '@nestjs/common';
 import { ActorsService } from './actors.service';
 import { CreateActorDto, UpdateActorDto } from './dto';
@@ -20,8 +20,9 @@ export class ActorsController {
   constructor(private readonly actorsService: ActorsService) {}
 
   @Post()
+  @HttpCode(201)
   @UseGuards(ApiKeyGuard)
-  create(@Body(ValidationPipe) createActorDto: CreateActorDto) {
+  create(@Body() createActorDto: CreateActorDto) {
     return this.actorsService.create(createActorDto);
   }
 
@@ -49,17 +50,19 @@ export class ActorsController {
   }
 
   @Patch(':id')
+  @HttpCode(200)
   @UseGuards(ApiKeyGuard)
   update(
     @Param('id', ParseIntPipe) id: number,
-    @Body(ValidationPipe) updateActorDto: UpdateActorDto,
+    @Body() updateActorDto: UpdateActorDto,
   ) {
     return this.actorsService.update(id, updateActorDto);
   }
 
   @Delete(':id')
+  @HttpCode(204)
   @UseGuards(ApiKeyGuard)
-  remove(@Param('id', ParseIntPipe) id: number) {
-    return this.actorsService.remove(id);
+  async remove(@Param('id', ParseIntPipe) id: number): Promise<void> {
+    await this.actorsService.remove(id);
   }
 }

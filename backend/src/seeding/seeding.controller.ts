@@ -5,6 +5,7 @@ import {
   Query,
   ParseIntPipe,
   UseGuards,
+  HttpCode,
 } from '@nestjs/common';
 import { SeedingService } from './seeding.service';
 import { ApiKeyGuard } from '../auth/guards';
@@ -15,6 +16,7 @@ export class SeedingController {
   constructor(private readonly seedingService: SeedingService) {}
 
   @Post('movies')
+  @HttpCode(201)
   async seedMovies(
     @Query('count', new ParseIntPipe({ optional: true })) count: number = 100,
   ) {
@@ -39,11 +41,8 @@ export class SeedingController {
   }
 
   @Delete('clear')
-  async clearDatabase() {
+  @HttpCode(204)
+  async clearDatabase(): Promise<void> {
     await this.seedingService.clearDatabase();
-    return {
-      message: 'Database cleared successfully',
-      status: 'completed',
-    };
   }
 }

@@ -7,9 +7,11 @@ import {
   Param,
   Delete,
   ParseIntPipe,
-  ValidationPipe,
   UseGuards,
+  HttpCode,
+  Res,
 } from '@nestjs/common';
+import { Response } from 'express';
 import { RatingsService } from './ratings.service';
 import { CreateRatingDto, UpdateRatingDto } from './dto';
 import { ApiKeyGuard } from '../auth/guards';
@@ -19,8 +21,9 @@ export class RatingsController {
   constructor(private readonly ratingsService: RatingsService) {}
 
   @Post()
+  @HttpCode(201)
   @UseGuards(ApiKeyGuard)
-  create(@Body(ValidationPipe) createRatingDto: CreateRatingDto) {
+  create(@Body() createRatingDto: CreateRatingDto) {
     return this.ratingsService.create(createRatingDto);
   }
 
@@ -40,22 +43,31 @@ export class RatingsController {
   }
 
   @Get('movie/:movieId/average')
-  getAverageRating(@Param('movieId', ParseIntPipe) movieId: number) {
-    return this.ratingsService.getAverageRating(movieId);
+  async getAverageRating(
+    @Param('movieId', ParseIntPipe) movieId: number,
+    @Res() res: Response,
+  ) {
+    const result = await this.ratingsService.getAverageRating(movieId);
+    if (result === null) {
+      return res.json(null);
+    }
+    return res.json(result);
   }
 
   @Patch(':id')
+  @HttpCode(200)
   @UseGuards(ApiKeyGuard)
   update(
     @Param('id', ParseIntPipe) id: number,
-    @Body(ValidationPipe) updateRatingDto: UpdateRatingDto,
+    @Body() updateRatingDto: UpdateRatingDto,
   ) {
     return this.ratingsService.update(id, updateRatingDto);
   }
 
   @Delete(':id')
+  @HttpCode(204)
   @UseGuards(ApiKeyGuard)
-  remove(@Param('id', ParseIntPipe) id: number) {
-    return this.ratingsService.remove(id);
+  async remove(@Param('id', ParseIntPipe) id: number): Promise<void> {
+    await this.ratingsService.remove(id);
   }
 }

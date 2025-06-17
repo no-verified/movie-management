@@ -72,7 +72,11 @@ export default function Home() {
             <div className="text-center py-8 text-destructive-foreground">
               <div className="text-6xl mb-4">🎬</div>
               <h4 className="text-xl font-bold mb-2">No Movies Available</h4>
-              <p className="mb-2">Did you forget to seed the database?</p>
+              <p className="mb-2">
+                You need to seed the database first with the command:
+                <br />
+                <code>make seed</code> at the root of the project
+              </p>
             </div>
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
@@ -98,7 +102,11 @@ export default function Home() {
             <div className="text-center py-8 text-destructive-foreground">
               <div className="text-6xl mb-4">🎭</div>
               <h4 className="text-xl font-bold mb-2">No Actors Available</h4>
-              <p className="mb-2">Did you forget to seed the database?</p>
+              <p className="mb-2">
+                You need to seed the database first with the command:
+                <br />
+                <code>make seed</code> at the root of the project
+              </p>
             </div>
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
