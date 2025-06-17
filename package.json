@@ -1,0 +1,28 @@
+{
+  "name": "movie-management",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "prepare": "husky install",
+    "frontend:lint": "cd frontend && pnpm lint",
+    "backend:lint": "cd backend && pnpm lint",
+    "frontend:lint:fix": "cd frontend && pnpm lint --fix",
+    "backend:lint:fix": "cd backend && pnpm lint"
+  },
+  "workspaces": [
+    "frontend",
+    "backend"
+  ],
+  "devDependencies": {
+    "husky": "^8.0.3",
+    "lint-staged": "^15.2.0"
+  },
+  "lint-staged": {
+    "frontend/**/*.{ts,tsx,js,jsx}": [
+      "cd frontend && pnpm lint --fix"
+    ],
+    "backend/**/*.{ts,js}": [
+      "cd backend && pnpm lint"
+    ]
+  }
+}
