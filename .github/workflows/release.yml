@@ -11,6 +11,7 @@ on:
 env:
   NODE_VERSION: '20'
   PNPM_VERSION: '8.6.10'
+  RELEASE_TAG: ${{ github.event.client_payload.tag || github.ref_name }}
 
 jobs:
   build-backend:
@@ -41,10 +42,8 @@ jobs:
       with:
         images: ghcr.io/${{ github.repository }}/backend
         tags: |
-          type=ref,event=tag
-          type=semver,pattern={{version}}
-          type=semver,pattern={{major}}.{{minor}}
-          type=semver,pattern={{major}}
+          type=raw,value=${{ env.RELEASE_TAG }}
+          type=raw,value=latest
       
     - name: Build and push backend image
       uses: docker/build-push-action@v5
@@ -83,10 +82,8 @@ jobs:
       with:
         images: ghcr.io/${{ github.repository }}/frontend
         tags: |
-          type=ref,event=tag
-          type=semver,pattern={{version}}
-          type=semver,pattern={{major}}.{{minor}}
-          type=semver,pattern={{major}}
+          type=raw,value=${{ env.RELEASE_TAG }}
+          type=raw,value=latest
         
     - name: Build and push frontend image
       uses: docker/build-push-action@v5
@@ -112,14 +109,15 @@ jobs:
     - name: Create Release
       uses: softprops/action-gh-release@v2
       with:
-        name: Release ${{ github.event.client_payload.tag || github.ref_name }}
+        tag_name: ${{ env.RELEASE_TAG }}
+        name: Release ${{ env.RELEASE_TAG }}
         body: |
           ## Changes
-          - Automated release for version ${{ github.event.client_payload.tag || github.ref_name }}
+          - Automated release for version ${{ env.RELEASE_TAG }}
           
           ## Docker Images
-          - Backend: `ghcr.io/${{ github.repository }}/backend:${{ github.event.client_payload.tag || github.ref_name }}`
-          - Frontend: `ghcr.io/${{ github.repository }}/frontend:${{ github.event.client_payload.tag || github.ref_name }}`
+          - Backend: `ghcr.io/${{ github.repository }}/backend:${{ env.RELEASE_TAG }}`
+          - Frontend: `ghcr.io/${{ github.repository }}/frontend:${{ env.RELEASE_TAG }}`
         draft: false
         prerelease: false
         generate_release_notes: true
