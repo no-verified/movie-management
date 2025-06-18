@@ -85,7 +85,7 @@ class ApiService {
   private async request<T>(
     endpoint: string,
     options: RequestInit = {}
-  ): Promise<T> {
+  ): Promise<T | undefined> {
     const url = `${API_BASE_URL}${endpoint}`;
 
     // Ajouter automatiquement le token JWT pour toutes les requêtes protégées
