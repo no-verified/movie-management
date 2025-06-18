@@ -3,6 +3,8 @@ import {
   IsOptional,
   IsDateString,
   IsUrl,
+  IsArray,
+  IsNumber,
   Length,
 } from 'class-validator';
 
@@ -30,4 +32,9 @@ export class CreateActorDto {
   @IsOptional()
   @IsUrl()
   photoUrl?: string;
+
+  @IsOptional()
+  @IsArray()
+  @IsNumber({}, { each: true })
+  movieIds?: number[];
 }

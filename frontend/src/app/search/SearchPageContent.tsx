@@ -172,7 +172,6 @@ export default function SearchPageContent() {
                       key={actor.id}
                       actor={actor}
                       className="h-full"
-                      showDetailsButton={false}
                     />
                   ))}
                 </div>

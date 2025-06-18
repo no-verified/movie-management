@@ -1,7 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, In } from 'typeorm';
-import { Actor } from '../entities';
+import { Actor, Movie } from '../entities';
 import { CreateActorDto, UpdateActorDto } from './dto';
 
 @Injectable()
@@ -9,13 +9,24 @@ export class ActorsService {
   constructor(
     @InjectRepository(Actor)
     private actorRepository: Repository<Actor>,
+    @InjectRepository(Movie)
+    private movieRepository: Repository<Movie>,
   ) {}
 
   async create(createActorDto: CreateActorDto): Promise<Actor> {
-    const actor = this.actorRepository.create(createActorDto);
+    const { movieIds, ...actorData } = createActorDto;
 
-    if (createActorDto.dateOfBirth) {
-      actor.dateOfBirth = new Date(createActorDto.dateOfBirth);
+    const actor = this.actorRepository.create(actorData);
+
+    if (actorData.dateOfBirth) {
+      actor.dateOfBirth = new Date(actorData.dateOfBirth);
+    }
+
+    if (movieIds && movieIds.length > 0) {
+      const movies = await this.movieRepository.findBy({
+        id: In(movieIds),
+      });
+      actor.movies = movies;
     }
 
     return this.actorRepository.save(actor);
@@ -41,12 +52,25 @@ export class ActorsService {
   }
 
   async update(id: number, updateActorDto: UpdateActorDto): Promise<Actor> {
+    const { movieIds, ...actorData } = updateActorDto;
+
     const actor = await this.findOne(id);
 
-    Object.assign(actor, updateActorDto);
+    Object.assign(actor, actorData);
 
-    if (updateActorDto.dateOfBirth) {
-      actor.dateOfBirth = new Date(updateActorDto.dateOfBirth);
+    if (actorData.dateOfBirth) {
+      actor.dateOfBirth = new Date(actorData.dateOfBirth);
+    }
+
+    if (movieIds !== undefined) {
+      if (movieIds.length > 0) {
+        const movies = await this.movieRepository.findBy({
+          id: In(movieIds),
+        });
+        actor.movies = movies;
+      } else {
+        actor.movies = [];
+      }
     }
 
     return this.actorRepository.save(actor);

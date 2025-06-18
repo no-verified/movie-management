@@ -1,6 +1,6 @@
 import {useQuery} from "@tanstack/react-query";
 import {useMutation, useQueryClient} from "@tanstack/react-query";
-import {apiService, Actor, Movie} from "@/lib/api";
+import {apiService, Actor, Movie, UpdateActorData, CreateActorData} from "@/lib/api";
 
 export function useActors(search?: string) {
   return useQuery<Actor[]>({
@@ -46,6 +46,35 @@ export function useDeleteActor() {
       // Invalider les listes d'acteurs pour rafraîchir
       queryClient.invalidateQueries({queryKey: ["actors"]});
       queryClient.invalidateQueries({queryKey: ["recentActors"]});
+    },
+  });
+}
+
+// Mise à jour d'acteur
+export function useUpdateActor() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({id, data}: {id: number; data: UpdateActorData}) => 
+      apiService.updateActor(id, data),
+    onSuccess: (updatedActor) => {
+      // Invalider et mettre à jour les caches
+      queryClient.invalidateQueries({queryKey: ["actors"]});
+      queryClient.invalidateQueries({queryKey: ["recentActors"]});
+      queryClient.setQueryData(["actor", updatedActor.id], updatedActor);
+    },
+  });
+}
+
+// Création d'acteur
+export function useCreateActor() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (data: CreateActorData) => apiService.createActor(data),
+    onSuccess: (newActor) => {
+      // Invalider les listes pour inclure le nouvel acteur
+      queryClient.invalidateQueries({queryKey: ["actors"]});
+      queryClient.invalidateQueries({queryKey: ["recentActors"]});
+      queryClient.setQueryData(["actor", newActor.id], newActor);
     },
   });
 }

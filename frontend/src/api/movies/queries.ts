@@ -4,7 +4,7 @@ import {
   useMutation,
   useQueryClient,
 } from "@tanstack/react-query";
-import {apiService, Movie, Rating, PaginatedResponse} from "@/lib/api";
+import {apiService, Movie, Rating, PaginatedResponse, UpdateMovieData, CreateMovieData} from "@/lib/api";
 
 export function useMoviesInfinite(search?: string) {
   return useInfiniteQuery<PaginatedResponse<Movie>, Error>({
@@ -74,6 +74,35 @@ export function useDeleteMovie() {
     onSuccess: () => {
       queryClient.invalidateQueries({queryKey: ["movies"]});
       queryClient.invalidateQueries({queryKey: ["recentMovies"]});
+    },
+  });
+}
+
+// Mise à jour de film
+export function useUpdateMovie() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({id, data}: {id: number; data: UpdateMovieData}) => 
+      apiService.updateMovie(id, data),
+    onSuccess: (updatedMovie) => {
+      // Invalider et mettre à jour les caches
+      queryClient.invalidateQueries({queryKey: ["movies"]});
+      queryClient.invalidateQueries({queryKey: ["recentMovies"]});
+      queryClient.setQueryData(["movie", updatedMovie.id], updatedMovie);
+    },
+  });
+}
+
+// Création de film
+export function useCreateMovie() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (data: CreateMovieData) => apiService.createMovie(data),
+    onSuccess: (newMovie) => {
+      // Invalider les listes pour inclure le nouveau film
+      queryClient.invalidateQueries({queryKey: ["movies"]});
+      queryClient.invalidateQueries({queryKey: ["recentMovies"]});
+      queryClient.setQueryData(["movie", newMovie.id], newMovie);
     },
   });
 }

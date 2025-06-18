@@ -41,6 +41,46 @@ interface PaginatedResponse<T> {
   hasMore: boolean;
 }
 
+interface UpdateMovieData {
+  title?: string;
+  description?: string;
+  genre?: string;
+  releaseYear?: number;
+  duration?: number;
+  posterUrl?: string;
+  actorIds?: number[];
+}
+
+interface UpdateActorData {
+  firstName?: string;
+  lastName?: string;
+  dateOfBirth?: string;
+  nationality?: string;
+  biography?: string;
+  photoUrl?: string;
+  movieIds?: number[];
+}
+
+interface CreateMovieData {
+  title: string;
+  description?: string;
+  genre?: string;
+  releaseYear?: number;
+  duration?: number;
+  posterUrl?: string;
+  actorIds?: number[];
+}
+
+interface CreateActorData {
+  firstName: string;
+  lastName: string;
+  dateOfBirth: string;
+  nationality?: string;
+  biography?: string;
+  photoUrl?: string;
+  movieIds?: number[];
+}
+
 class ApiService {
   private async request<T>(
     endpoint: string,
@@ -87,7 +127,19 @@ class ApiService {
       throw new Error(`API Error: ${response.status} ${response.statusText}`);
     }
 
-    return response.json();
+    // Pour les réponses 204 No Content (DELETE), pas de JSON à parser
+    if (response.status === 204) {
+      return undefined;
+    }
+
+    // Vérifier si la réponse a du contenu avant de parser en JSON
+    const contentType = response.headers.get('content-type');
+    if (contentType && contentType.includes('application/json')) {
+      const text = await response.text();
+      return text ? JSON.parse(text) : undefined;
+    }
+    
+    return undefined;
   }
 
   // Movies API
@@ -121,6 +173,20 @@ class ApiService {
     await this.request(`/movies/${id}`, {method: "DELETE"});
   }
 
+  async updateMovie(id: number, data: UpdateMovieData): Promise<Movie> {
+    return this.request(`/movies/${id}`, {
+      method: "PATCH",
+      body: JSON.stringify(data),
+    });
+  }
+
+  async createMovie(data: CreateMovieData): Promise<Movie> {
+    return this.request(`/movies`, {
+      method: "POST",
+      body: JSON.stringify(data),
+    });
+  }
+
   // Actors API
   async getActors(search?: string): Promise<Actor[]> {
     const searchParam = search ? `?search=${encodeURIComponent(search)}` : "";
@@ -141,6 +207,20 @@ class ApiService {
 
   async deleteActor(id: number): Promise<void> {
     await this.request(`/actors/${id}`, {method: "DELETE"});
+  }
+
+  async updateActor(id: number, data: UpdateActorData): Promise<Actor> {
+    return this.request(`/actors/${id}`, {
+      method: "PATCH",
+      body: JSON.stringify(data),
+    });
+  }
+
+  async createActor(data: CreateActorData): Promise<Actor> {
+    return this.request(`/actors`, {
+      method: "POST",
+      body: JSON.stringify(data),
+    });
   }
 
   // Ratings API
@@ -175,4 +255,4 @@ class ApiService {
 }
 
 export const apiService = new ApiService();
-export type {Movie, Actor, Rating, PaginatedResponse};
+export type {Movie, Actor, Rating, PaginatedResponse, UpdateMovieData, UpdateActorData, CreateMovieData, CreateActorData};

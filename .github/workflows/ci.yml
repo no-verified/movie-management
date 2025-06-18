@@ -48,8 +48,8 @@ jobs:
           cd backend
           pnpm run test
 
-  frontend-check:
-    name: Frontend Check
+  frontend-test:
+    name: Frontend Tests
     runs-on: ubuntu-latest
 
     steps:
@@ -88,7 +88,7 @@ jobs:
   create-tag:
     name: Create Tag
     runs-on: ubuntu-latest
-    needs: [backend-test, frontend-check]
+    needs: [backend-test, frontend-test]
     if: github.ref == 'refs/heads/main' && github.event_name == 'push'
     permissions:
       contents: write

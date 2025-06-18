@@ -1,4 +1,3 @@
-- Add update and delete from frontend
 - Add tests for the frontend
 - Fix release pipeline not triggering
-- enlever todo et requirements.md de l'history git
+- enlever todo.md et requirements.md de l'history git
