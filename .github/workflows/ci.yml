@@ -141,12 +141,11 @@ jobs:
         with:
           token: ${{ secrets.GH_PAT }}
           script: |
-            await github.rest.actions.createWorkflowDispatch({
+            await github.rest.repos.createDispatchEvent({
               owner: context.repo.owner,
               repo: context.repo.repo,
-              workflow_id: 'release.yml',
-              ref: 'main',
-              inputs: {
+              event_type: 'release-trigger',
+              client_payload: {
                 tag: '${{ steps.tag.outputs.new_tag }}'
               }
             })

@@ -5,12 +5,8 @@ on:
     tags: 
       - '*.*.*'
       - '[0-9]+.[0-9]+.[0-9]+'
-  workflow_dispatch:
-    inputs:
-      tag:
-        description: 'Tag to release'
-        required: true
-        type: string
+  repository_dispatch:
+    types: [release-trigger]
 
 env:
   NODE_VERSION: '20'
@@ -27,7 +23,7 @@ jobs:
     steps:
     - uses: actions/checkout@v4
       with:
-        ref: ${{ github.event.inputs.tag || github.ref }}
+        ref: ${{ github.event.client_payload.tag || github.ref }}
     
     - name: Log in to GitHub Container Registry
       uses: docker/login-action@v3
@@ -116,14 +112,14 @@ jobs:
     - name: Create Release
       uses: softprops/action-gh-release@v2
       with:
-        name: Release ${{ github.event.inputs.tag || github.ref_name }}
+        name: Release ${{ github.event.client_payload.tag || github.ref_name }}
         body: |
           ## Changes
-          - Automated release for version ${{ github.event.inputs.tag || github.ref_name }}
+          - Automated release for version ${{ github.event.client_payload.tag || github.ref_name }}
           
           ## Docker Images
-          - Backend: `ghcr.io/${{ github.repository }}/backend:${{ github.event.inputs.tag || github.ref_name }}`
-          - Frontend: `ghcr.io/${{ github.repository }}/frontend:${{ github.event.inputs.tag || github.ref_name }}`
+          - Backend: `ghcr.io/${{ github.repository }}/backend:${{ github.event.client_payload.tag || github.ref_name }}`
+          - Frontend: `ghcr.io/${{ github.repository }}/frontend:${{ github.event.client_payload.tag || github.ref_name }}`
         draft: false
         prerelease: false
         generate_release_notes: true
