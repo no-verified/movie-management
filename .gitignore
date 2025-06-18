@@ -119,3 +119,5 @@ docker-compose.override.yml
 *.db
 *.sqlite
 *.sqlite3
+TODO.md
+requirements.md

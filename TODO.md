@@ -1,3 +1,0 @@
-- Add tests for the frontend
-- Fix release pipeline not triggering
-- enlever todo.md et requirements.md de l'history git
