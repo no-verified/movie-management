@@ -135,3 +135,18 @@ jobs:
           git config user.email github-actions@github.com
           git tag ${{ steps.tag.outputs.new_tag }}
           git push https://${{ secrets.GH_PAT }}@github.com/${{ github.repository }}.git ${{ steps.tag.outputs.new_tag }}
+
+      - name: Trigger Release Pipeline
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GH_PAT }}
+          script: |
+            await github.rest.actions.createWorkflowDispatch({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              workflow_id: 'release.yml',
+              ref: 'main',
+              inputs: {
+                tag: '${{ steps.tag.outputs.new_tag }}'
+              }
+            })
