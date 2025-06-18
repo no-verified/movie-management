@@ -1,11 +1,9 @@
 # 🎬 Movie Management System
 
-[![CI Pipeline](https://github.com/tmn/movie-management/actions/workflows/ci.yml/badge.svg)](https://github.com/tmn/movie-management/actions/workflows/ci.yml)
-[![Release](https://github.com/tmn/movie-management/actions/workflows/release.yml/badge.svg)](https://github.com/tmn/movie-management/actions/workflows/release.yml)
 [![Node.js](https://img.shields.io/badge/Node.js-20-green.svg)](https://nodejs.org/)
 [![PNPM](https://img.shields.io/badge/PNPM-8.6.10-orange.svg)](https://pnpm.io/)
 [![Docker](https://img.shields.io/badge/Docker-compose-blue.svg)](https://docker.com/)
-[![License](https://img.shields.io/badge/License-Private-red.svg)](#)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 A full-stack movie management application with NestJS backend, Next.js frontend, and Neobrutalism design system.
 
