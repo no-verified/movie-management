@@ -1,4 +1,4 @@
-# 🎬 Movie Management System
+# 🎬 Nestflix
 
 [![Node.js](https://img.shields.io/badge/Node.js-20-green.svg)](https://nodejs.org/)
 [![PNPM](https://img.shields.io/badge/PNPM-8.6.10-orange.svg)](https://pnpm.io/)
