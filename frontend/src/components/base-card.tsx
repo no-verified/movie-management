@@ -23,7 +23,7 @@ export function BaseCard({
   return (
     <Card
       className={cn(
-        "flex flex-col justify-between h-full w-full max-w-sm overflow-hidden",
+        "flex flex-col justify-between h-full w-full max-w-sm overflow-hidden p-0",
         className
       )}
     >
