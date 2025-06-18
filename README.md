@@ -1,4 +1,4 @@
-# 🎬 Movie Management System
+# 🎬 Nestflix
 
 [![CI Pipeline](https://github.com/tmn/movie-management/actions/workflows/ci.yml/badge.svg)](https://github.com/tmn/movie-management/actions/workflows/ci.yml)
 [![Release](https://github.com/tmn/movie-management/actions/workflows/release.yml/badge.svg)](https://github.com/tmn/movie-management/actions/workflows/release.yml)
