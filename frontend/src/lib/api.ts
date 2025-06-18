@@ -85,7 +85,7 @@ class ApiService {
   private async request<T>(
     endpoint: string,
     options: RequestInit = {}
-  ): Promise<T | undefined> {
+  ): Promise<T> {
     const url = `${API_BASE_URL}${endpoint}`;
 
     // Ajouter automatiquement le token JWT pour toutes les requêtes protégées
@@ -129,17 +129,17 @@ class ApiService {
 
     // Pour les réponses 204 No Content (DELETE), pas de JSON à parser
     if (response.status === 204) {
-      return undefined;
+      return [] as T;
     }
 
     // Vérifier si la réponse a du contenu avant de parser en JSON
-    const contentType = response.headers.get('content-type');
-    if (contentType && contentType.includes('application/json')) {
+    const contentType = response.headers.get("content-type");
+    if (contentType && contentType.includes("application/json")) {
       const text = await response.text();
-      return text ? JSON.parse(text) : undefined;
+      return text ? JSON.parse(text) : ({} as T);
     }
-    
-    return undefined;
+
+    return {} as T;
   }
 
   // Movies API
@@ -255,4 +255,13 @@ class ApiService {
 }
 
 export const apiService = new ApiService();
-export type {Movie, Actor, Rating, PaginatedResponse, UpdateMovieData, UpdateActorData, CreateMovieData, CreateActorData};
+export type {
+  Movie,
+  Actor,
+  Rating,
+  PaginatedResponse,
+  UpdateMovieData,
+  UpdateActorData,
+  CreateMovieData,
+  CreateActorData,
+};
