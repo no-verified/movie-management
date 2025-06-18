@@ -47,8 +47,8 @@ export default function ActorDetailPage() {
             {errorActor instanceof Error
               ? errorActor.message
               : errorMovies instanceof Error
-              ? errorMovies.message
-              : "The actor you're looking for doesn't exist."}
+                ? errorMovies.message
+                : "The actor you're looking for doesn't exist."}
           </p>
           <Button onClick={() => router.back()} variant="neutral">
             Go Back
@@ -202,11 +202,7 @@ export default function ActorDetailPage() {
             </h3>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
               {sortedMovies.map((movie) => (
-                <MovieCard
-                  key={movie.id}
-                  movie={movie}
-                  onViewDetails={(id) => router.push(`/movies/${id}`)}
-                />
+                <MovieCard key={movie.id} movie={movie} />
               ))}
             </div>
           </section>

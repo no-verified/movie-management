@@ -143,6 +143,10 @@ export default function ActorsPage() {
                 key={actor.id}
                 actor={actor}
                 onViewDetails={(id) => router.push(`/actors/${id}`)}
+                onDelete={(id) => {
+                  setFilteredActors((prev) => prev.filter((a) => a.id !== id));
+                  setActors((prev) => prev.filter((a) => a.id !== id));
+                }}
               />
             ))}
           </div>

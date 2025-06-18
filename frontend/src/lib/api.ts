@@ -117,6 +117,10 @@ class ApiService {
     return this.request(`/movies/${id}/actors`);
   }
 
+  async deleteMovie(id: number): Promise<void> {
+    await this.request(`/movies/${id}`, {method: "DELETE"});
+  }
+
   // Actors API
   async getActors(search?: string): Promise<Actor[]> {
     const searchParam = search ? `?search=${encodeURIComponent(search)}` : "";
@@ -133,6 +137,10 @@ class ApiService {
 
   async getActorMovies(id: number): Promise<Movie[]> {
     return this.request(`/actors/${id}/movies`);
+  }
+
+  async deleteActor(id: number): Promise<void> {
+    await this.request(`/actors/${id}`, {method: "DELETE"});
   }
 
   // Ratings API

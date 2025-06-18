@@ -154,7 +154,6 @@ export default function SearchPageContent() {
                       key={movie.id}
                       movie={movie}
                       className="h-full"
-                      showDetailsButton={false}
                     />
                   ))}
                 </div>

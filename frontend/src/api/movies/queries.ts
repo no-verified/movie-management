@@ -1,10 +1,16 @@
-import {useQuery, useInfiniteQuery} from "@tanstack/react-query";
+import {
+  useQuery,
+  useInfiniteQuery,
+  useMutation,
+  useQueryClient,
+} from "@tanstack/react-query";
 import {apiService, Movie, Rating, PaginatedResponse} from "@/lib/api";
 
 export function useMoviesInfinite(search?: string) {
   return useInfiniteQuery<PaginatedResponse<Movie>, Error>({
     queryKey: ["movies", "infinite", {search}],
-    queryFn: ({pageParam = 1}) => apiService.getMovies(search, pageParam as number),
+    queryFn: ({pageParam = 1}) =>
+      apiService.getMovies(search, pageParam as number),
     getNextPageParam: (lastPage, allPages) => {
       return lastPage.hasMore ? allPages.length + 1 : undefined;
     },
@@ -57,5 +63,17 @@ export function useRecentMovies() {
   return useQuery<Movie[]>({
     queryKey: ["recentMovies"],
     queryFn: () => apiService.getRecentMovies(),
+  });
+}
+
+// Suppression de film
+export function useDeleteMovie() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (id: number) => apiService.deleteMovie(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({queryKey: ["movies"]});
+      queryClient.invalidateQueries({queryKey: ["recentMovies"]});
+    },
   });
 }

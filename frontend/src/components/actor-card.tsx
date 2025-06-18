@@ -9,12 +9,15 @@ import {Button} from "@/components/ui/button";
 import {cn} from "@/lib/utils";
 import {Actor} from "@/lib/api";
 import Image from "next/image";
+import {useState} from "react";
+import {useDeleteActor} from "@/api/actors/queries";
 
 interface ActorCardProps {
   actor: Actor;
   className?: string;
   onViewDetails?: (actorId: number) => void;
   showDetailsButton?: boolean;
+  onDelete?: (id: number) => void;
 }
 
 export function ActorCard({
@@ -22,6 +25,7 @@ export function ActorCard({
   className,
   onViewDetails,
   showDetailsButton = true,
+  onDelete,
 }: ActorCardProps) {
   const fullName = `${actor.firstName} ${actor.lastName}`;
   const age = actor.dateOfBirth
@@ -33,6 +37,11 @@ export function ActorCard({
     .slice(0, 3)
     .map((movie) => movie.title)
     .join(", ");
+
+  const [isEditOpen, setEditOpen] = useState(false);
+  const [isDeleteConfirm, setDeleteConfirm] = useState(false);
+  const deleteActorMutation = useDeleteActor();
+  const [deleteError, setDeleteError] = useState<string | null>(null);
 
   return (
     <Card
@@ -98,8 +107,8 @@ export function ActorCard({
         )}
       </CardContent>
 
-      {showDetailsButton && (
-        <CardFooter className="p-3 sm:p-4 pt-0 mt-auto">
+      <CardFooter className="p-3 sm:p-4 pt-0 mt-auto flex flex-col gap-2">
+        {showDetailsButton && (
           <Button
             onClick={() => onViewDetails?.(actor.id)}
             className="w-full text-xs sm:text-sm"
@@ -107,7 +116,73 @@ export function ActorCard({
           >
             View Profile
           </Button>
-        </CardFooter>
+        )}
+        <div className="flex gap-2">
+          <Button
+            onClick={() => setEditOpen(true)}
+            className="w-1/2 text-xs sm:text-sm"
+            variant="neutral"
+          >
+            Edit
+          </Button>
+          <Button
+            onClick={() => setDeleteConfirm(true)}
+            className="w-1/2 text-xs sm:text-sm"
+            variant="neutral"
+          >
+            Delete
+          </Button>
+        </div>
+      </CardFooter>
+
+      {isEditOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+          <div className="bg-white rounded shadow-lg p-6 min-w-[320px]">
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-lg font-bold">Edit Actor</h2>
+              <button onClick={() => setEditOpen(false)} className="text-xl">
+                &times;
+              </button>
+            </div>
+            <div>Edit form here…</div>
+          </div>
+        </div>
+      )}
+
+      {isDeleteConfirm && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+          <div className="bg-white rounded shadow-lg p-6 min-w-[320px]">
+            <div className="mb-4">
+              Confirm deletion of <b>{fullName}</b>?
+            </div>
+            <div className="flex gap-2">
+              <Button
+                variant="neutral"
+                disabled={deleteActorMutation.isPending}
+                onClick={async () => {
+                  setDeleteError(null);
+                  try {
+                    await deleteActorMutation.mutateAsync(actor.id);
+                    setDeleteConfirm(false);
+                    onDelete?.(actor.id);
+                  } catch (err) {
+                    setDeleteError(
+                      (err as Error)?.message || "Error while deleting"
+                    );
+                  }
+                }}
+              >
+                {deleteActorMutation.isPending ? "Deleting..." : "Delete"}
+              </Button>
+              <Button variant="neutral" onClick={() => setDeleteConfirm(false)}>
+                Cancel
+              </Button>
+            </div>
+            {deleteError && (
+              <div className="text-red-600 text-xs mt-2">{deleteError}</div>
+            )}
+          </div>
+        </div>
       )}
     </Card>
   );

@@ -1,28 +1,19 @@
-import {
-  Card,
-  CardContent,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import {Button} from "@/components/ui/button";
+import {Card, CardContent, CardHeader, CardTitle} from "@/components/ui/card";
 import {cn} from "@/lib/utils";
 import {Movie} from "@/lib/api";
 import Image from "next/image";
+import {useState} from "react";
+import {Button} from "@/components/ui/button";
+import {useDeleteMovie} from "@/api/movies/queries";
 
 interface MovieCardProps {
   movie: Movie;
   className?: string;
-  onViewDetails?: (movieId: number) => void;
   showDetailsButton?: boolean;
+  onDelete?: (id: number) => void;
 }
 
-export function MovieCard({
-  movie,
-  className,
-  onViewDetails,
-  showDetailsButton = true,
-}: MovieCardProps) {
+export function MovieCard({movie, className, onDelete}: MovieCardProps) {
   const averageRating =
     movie.ratings.length > 0
       ? (
@@ -37,6 +28,11 @@ export function MovieCard({
     .join(", ");
   const moreActors =
     movie.actors.length > 3 ? ` +${movie.actors.length - 3} more` : "";
+
+  const [isEditOpen, setEditOpen] = useState(false);
+  const [isDeleteConfirm, setDeleteConfirm] = useState(false);
+  const deleteMovieMutation = useDeleteMovie();
+  const [deleteError, setDeleteError] = useState<string | null>(null);
 
   return (
     <Card
@@ -96,16 +92,73 @@ export function MovieCard({
         )}
       </CardContent>
 
-      {showDetailsButton && (
-        <CardFooter className="p-3 sm:p-4 pt-0 mt-auto">
+      <div className="p-3 sm:p-4 pt-0 mt-auto flex flex-col gap-2">
+        <div className="flex gap-2">
           <Button
-            onClick={() => onViewDetails?.(movie.id)}
-            className="w-full text-xs sm:text-sm"
-            variant="default"
+            onClick={() => setEditOpen(true)}
+            className="w-1/2 text-xs sm:text-sm"
+            variant="neutral"
           >
-            View Details
+            Edit
           </Button>
-        </CardFooter>
+          <Button
+            onClick={() => setDeleteConfirm(true)}
+            className="w-1/2 text-xs sm:text-sm"
+            variant="neutral"
+          >
+            Delete
+          </Button>
+        </div>
+      </div>
+
+      {isEditOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+          <div className="bg-white rounded shadow-lg p-6 min-w-[320px]">
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-lg font-bold">Edit Movie</h2>
+              <button onClick={() => setEditOpen(false)} className="text-xl">
+                &times;
+              </button>
+            </div>
+            <div>Edit form here…</div>
+          </div>
+        </div>
+      )}
+
+      {isDeleteConfirm && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+          <div className="bg-white rounded shadow-lg p-6 min-w-[320px]">
+            <div className="mb-4">
+              Confirm deletion of <b>{movie.title}</b>?
+            </div>
+            <div className="flex gap-2">
+              <Button
+                variant="neutral"
+                disabled={deleteMovieMutation.isPending}
+                onClick={async () => {
+                  setDeleteError(null);
+                  try {
+                    await deleteMovieMutation.mutateAsync(movie.id);
+                    setDeleteConfirm(false);
+                    onDelete?.(movie.id);
+                  } catch (err) {
+                    setDeleteError(
+                      (err as Error)?.message || "Error while deleting"
+                    );
+                  }
+                }}
+              >
+                {deleteMovieMutation.isPending ? "Deleting..." : "Delete"}
+              </Button>
+              <Button variant="neutral" onClick={() => setDeleteConfirm(false)}>
+                Cancel
+              </Button>
+            </div>
+            {deleteError && (
+              <div className="text-red-600 text-xs mt-2">{deleteError}</div>
+            )}
+          </div>
+        </div>
       )}
     </Card>
   );

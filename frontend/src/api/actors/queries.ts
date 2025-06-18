@@ -1,4 +1,5 @@
 import {useQuery} from "@tanstack/react-query";
+import {useMutation, useQueryClient} from "@tanstack/react-query";
 import {apiService, Actor, Movie} from "@/lib/api";
 
 export function useActors(search?: string) {
@@ -33,5 +34,18 @@ export function useRecentActors() {
   return useQuery<Actor[]>({
     queryKey: ["recentActors"],
     queryFn: () => apiService.getRecentActors(),
+  });
+}
+
+// Suppression d'acteur
+export function useDeleteActor() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (id: number) => apiService.deleteActor(id),
+    onSuccess: () => {
+      // Invalider les listes d'acteurs pour rafraîchir
+      queryClient.invalidateQueries({queryKey: ["actors"]});
+      queryClient.invalidateQueries({queryKey: ["recentActors"]});
+    },
   });
 }
